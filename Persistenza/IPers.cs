@@ -4,7 +4,7 @@ public interface IPers
 {
     /// <summary>
     /// Funzione usata per inserire nella persistenza corrente gli oggetti del dominio 
-    /// da sanitizzare
+    /// da sanitizzare. Si considera che il file specificato sia già stato validato
     /// </summary>
     /// <param name="path">Percorso al file JSON con le istruzioni di sanitizzazione</param>
     void crea(string path);
