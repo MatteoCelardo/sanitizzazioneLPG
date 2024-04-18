@@ -1,0 +1,279 @@
+﻿{
+	"type": "object",
+	"properties": {
+		"NodiSensibili": {
+			"description": "vettore dei nodi da sanitizzare singolarmente",
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"IdCat": {
+						"type": "string"
+					},
+					"IdNodo": {
+						"type": "object",
+						"anyOf": [
+							{ "required": [ "Etichette" ] },
+							{ "required": [ "PropStr" ] },
+							{ "required": [ "PropNum" ] }
+						],
+						"properties": {
+							"Etichette": {
+								"type": "array",
+								"items": {
+									"type": "string"
+								},
+								"minItems": 1
+							},
+
+							"PropStr": {
+								"type": "object",
+								"patternProperties": {
+									"^.*$": {
+										"type": "string"
+									}
+								},
+								"additionalProperties": false,
+								"minProperties": 1
+							},
+
+							"PropNum": {
+								"type": "object",
+								"patternProperties": {
+									"^.*$": {
+										"type": "number"
+									}
+								},
+								"additionalProperties": false,
+								"minProperties": 1
+							}
+						},
+						"additionalProperties": false
+					},
+
+					"NodoSens": {
+						"type": "boolean"
+					},
+
+					"DaSanitizzare": {
+						"type": "object",
+						"anyOf": [
+							{ "required": [ "EtichetteSens" ] },
+							{ "required": [ "PropSempreSens" ] },
+							{ "required": [ "PropSensAssoc" ] }
+						],
+						"properties": {
+							"EtichetteSens": {
+								"type": "array",
+								"items": {
+									"type": "string"
+								},
+								"minItems": 1
+							},
+
+							"PropSempreSens": {
+								"type": "array",
+								"items": {
+									"type": "string"
+								},
+								"minItems": 1
+							},
+
+							"PropSensAssoc": {
+								"type": "object",
+								"patternProperties": {
+									"^.*$": {
+										"type": "object",
+										"properties": {
+											"PropAssoc": {
+												"type": "array",
+												"items": {
+													"type": "string"
+												}
+											},
+											"SanitizzareProp": {
+												"type": "boolean"
+											}
+										},
+										"additionalProperties": false,
+										"required": [ "PropAssoc", "SanitizzareProp" ]
+									}
+								},
+								"additionalProperties": false,
+								"minProperties": 1
+							}
+						},
+						"additionalProperties": false
+					}
+				},
+
+				"required": [ "IdNodo", "NodoSens" ],
+				"additionalProperties": false,
+
+				"if": {
+					"not": { "required": [ "IdCat" ] }
+				},
+				"then": {
+					"if": {
+						"properties": {
+							"NodoSens": { "const": false }
+						}
+					},
+					"then": {
+						"required": [ "DaSanitizzare" ]
+					},
+					"else": {
+						"not": { "required": [ "DaSanitizzare" ] }
+					}
+				},
+				"else": {
+					"if": {
+						"properties": {
+							"NodoSens": { "const": true }
+						}
+					},
+					"then": {
+						"not": { "required": [ "DaSanitizzare" ] }
+					}
+				}
+
+			}
+		},
+
+		"RelSensibili": {
+			"description": "vettore delle relazioni da sanitizzare singolarmente",
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"IdCat": {
+						"type": "string"
+					},
+					"IdRel": {
+						"type": "object",
+						"anyOf": [
+							{ "required": [ "Etichetta" ] },
+							{ "required": [ "PropStr" ] },
+							{ "required": [ "PropNum" ] }
+						],
+						"properties": {
+							"Etichetta": {
+								"type": "string"
+							},
+
+							"PropStr": {
+								"type": "object",
+								"patternProperties": {
+									"^.*$": {
+										"type": "string"
+									}
+								},
+								"additionalProperties": false,
+								"minProperties": 1
+							},
+
+							"PropNum": {
+								"type": "object",
+								"patternProperties": {
+									"^.*$": {
+										"type": "number"
+									}
+								},
+								"additionalProperties": false,
+								"minProperties": 1
+							}
+						},
+						"additionalProperties": false
+					},
+
+					"RelSens": {
+						"type": "boolean"
+					},
+
+					"DaSanitizzare": {
+						"type": "object",
+						"anyOf": [
+							{ "required": [ "PropSempreSens" ] },
+							{ "required": [ "PropSensAssoc" ] }
+						],
+						"properties": {
+							"PropSempreSens": {
+								"type": "array",
+								"items": {
+									"type": "string"
+								},
+								"minItems": 1
+							},
+
+							"PropSensAssoc": {
+								"type": "object",
+								"patternProperties": {
+									"^.*$": {
+										"type": "object",
+										"properties": {
+											"PropAssoc": {
+												"type": "array",
+												"items": {
+													"type": "string"
+												}
+											},
+											"SanitizzareProp": {
+												"type": "boolean"
+											}
+										},
+										"additionalProperties": false,
+										"required": [ "PropAssoc", "SanitizzareProp" ]
+									}
+								},
+								"additionalProperties": false,
+								"minProperties": 1
+							}
+						},
+						"additionalProperties": false
+					}
+				},
+				"required": [ "IdRel", "RelSens" ],
+				"additionalProperties": false,
+
+				"if": {
+					"not": { "required": [ "IdCat" ] }
+				},
+				"then": {
+					"if": {
+						"properties": {
+							"RelSens": { "const": false }
+						}
+					},
+					"then": {
+						"required": [ "DaSanitizzare" ]
+					},
+					"else": {
+						"not": { "required": [ "DaSanitizzare" ] }
+					}
+				},
+				"else": {
+					"if": {
+						"properties": {
+							"RelSens": { "const": true }
+						}
+					},
+					"then": {
+						"not": { "required": [ "DaSanitizzare" ] }
+					}
+				}
+			}
+		},
+		"Catene": {
+			"type": "array",
+			"items": {
+				"type": "array",
+				"items": {
+					"type": "string"
+				},
+				"minItems": 1
+			},
+			"minItems": 1
+		}
+	},
+	"additionalProperties": false
+}
