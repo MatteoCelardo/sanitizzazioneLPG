@@ -8,7 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Viste/" />
     <Folder Include="Properties/" />
     <Folder Include="Resources/" />
   </ItemGroup>
