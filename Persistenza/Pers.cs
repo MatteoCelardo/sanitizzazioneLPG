@@ -8,8 +8,9 @@ namespace sanitizzazioneLPG;
 
 public class Pers : IPers
 {
+    // variabile usata per contenere lo schema JSON
     private readonly JSchema schVal;
-
+    // liste usate per contenere tutti gli elementi da sanitizzare
     private List<Nodo> nodi;
     private List<Relazione> relazioni;
     private List<Catena> catene;
@@ -20,10 +21,11 @@ public class Pers : IPers
 
 
     private Pers(){
+        // elementi necessari alla lettura e interpretazione dello schema JSON
         Assembly assembly = Assembly.GetExecutingAssembly();
         StreamReader file = new StreamReader(assembly.GetManifestResourceStream("sanitizzazioneLPG.Risorse.Schema.json"));
         JsonTextReader reader = new JsonTextReader(file);
-        schVal = JSchema.Load(reader);
+        schVal = JSchema.Load(reader); // memorizzazione dello schema JSON
 
         nodi = new List<Nodo>();
         relazioni = new List<Relazione>();
@@ -94,18 +96,22 @@ public class Pers : IPers
     }
 
     public List<string> Valida(string path){
+        // lettura del file da validare
         JObject json = JObject.Parse(File.ReadAllText(path));
+        //inizializzazione della lista che conterrà gli eventuali errori riscontrati nel parsing
         IList<ValidationError> errori = new List<ValidationError>();
-        List<string> temp = new List<string>();
+        // lista di stringhe da ritornare
+        List<string> ret = new List<string>();
 
         if(json.IsValid(schVal, out errori))
-            return temp;
+            return ret;
         else 
         {
+            // formattazione di ogni errore in una stringa
             foreach(ValidationError e in errori)
-                temp.Add("Linea numero: " + e.LineNumber + " - Percorso: " + e.Path + " - Valore: " + e.Value + "\n" + "Errore: " + e.Message + "\n----\n");
+                ret.Add("Linea numero: " + e.LineNumber + " - Percorso: " + e.Path + " - Valore: " + e.Value + "\n" + "Errore: " + e.Message + "\n----\n");
 
-            return temp;
+            return ret;
         }
             
     }
