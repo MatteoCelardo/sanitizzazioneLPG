@@ -1,27 +1,29 @@
 ﻿
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
+using System.Reflection;
 
 namespace sanitizzazioneLPG;
 
 public class Pers : IPers
 {
-    private static Pers? istanza = null;
-    private static object mutex = new object();
     private readonly JSchema schVal;
 
     private List<Nodo> nodi;
     private List<Relazione> relazioni;
     private List<Catena> catene;
 
+    #region singleton
+    private static Pers? istanza = null;
+    private static object mutex = new object();
+
 
     private Pers(){
-        // inserire l'inport dello schema di validazione in schVal
-        /*
-        StreamReader file = File.OpenText(Environment.GetFolderPath(Environment.SpecialFolder.Desktop)+"/schemaCatene.json");
+        Assembly assembly = Assembly.GetExecutingAssembly();
+        StreamReader file = new StreamReader(assembly.GetManifestResourceStream("sanitizzazioneLPG.Risorse.Schema.json"));
         JsonTextReader reader = new JsonTextReader(file);
-            
-        schVal = JSchema.Load(reader);*/
+        schVal = JSchema.Load(reader);
 
         nodi = new List<Nodo>();
         relazioni = new List<Relazione>();
@@ -39,38 +41,82 @@ public class Pers : IPers
             }
         }
     }
+    #endregion
 
-    public void cancella()
+    public void Cancella()
     {
-        throw new NotImplementedException();
+        nodi.Clear();
+        relazioni.Clear();
+        catene.Clear();
     }
 
-    public void crea(string path)
+    public void Crea(string path)
     {
         string json = File.ReadAllText(path);
         // parsing del file JSON per ottenere i rispettivi oggetti C#
-        FileJson dati = JsonConvert.DeserializeObject<FileJson>(json);
+        FileJson? dati = JsonConvert.DeserializeObject<FileJson>(json);
         
-        // importazione dei nodi e delle relazioni senisbili
-        nodi.AddRange(dati.nodiSensibili);
-        relazioni.AddRange(dati.relSensibili);
+        if (dati == null)
+            throw new PersEcc("il file al percorso " + path + " è vuoto");
+
+        // importazione di nodi, relazioni e catene senisbili negli attributi della 
+        // persistenza
+        if(dati.nodiSensibili != null)
+            nodi.AddRange(dati.nodiSensibili);
+
+        if(dati.relSensibili != null)
+            relazioni.AddRange(dati.relSensibili);
         
-        
-        foreach(string[] c in dati.catene)
+        if(dati.catene != null)
+            foreach(string[] c in dati.catene)
+                catene.Add(new Catena(c));
+    }
+
+    public List<IDom> ListAll(EnumTipoDom etd)
+    {
+        switch(etd)
         {
-            catene.Add(new Catena(c));
+            case EnumTipoDom.NODI:
+                if(nodi.Count == 0)
+                    throw new PersEcc("La lista dei nodi è vuota");
+                return new List<IDom>(nodi); 
+            case EnumTipoDom.RELAZIONI: 
+                if(relazioni.Count == 0)
+                    throw new PersEcc("La lista delle relazioni è vuota");
+                return new List<IDom>(relazioni);
+            case EnumTipoDom.CATENE:
+                if(catene.Count == 0)
+                    throw new PersEcc("La lista delle catene è vuota");
+                return new List<IDom>(catene);  
+            default: 
+                throw new ArgumentException("l'enumerativo passato non è valido");
         }
     }
 
-    public List<IDom> listAll(EnumTipoDom etd)
-    {
-        throw new NotImplementedException();
+    public List<string> Valida(string path){
+        JObject json = JObject.Parse(File.ReadAllText(path));
+        IList<ValidationError> errori = new List<ValidationError>();
+        List<string> temp = new List<string>();
+
+        if(json.IsValid(schVal, out errori))
+            return temp;
+        else 
+        {
+            foreach(ValidationError e in errori)
+                temp.Add("Linea numero: " + e.LineNumber + " - Percorso: " + e.Path + " - Valore: " + e.Value + "\n" + "Errore: " + e.Message + "\n----\n");
+
+            return temp;
+        }
+            
     }
 
+
+    //classe privata di appoggio usata dal parser newtonsoft per ricavare gli oggetti C# dal file JSON
     class FileJson {
-        public Nodo[] nodiSensibili { get; set; }
-        public Relazione[] relSensibili {  get; set; } 
-        public string[][] catene {get; set;}
-
+        public Nodo[]? nodiSensibili { get; set; }
+        public Relazione[]? relSensibili {  get; set; } 
+        public string[][]? catene {get; set;}
     }
+
+    
 }

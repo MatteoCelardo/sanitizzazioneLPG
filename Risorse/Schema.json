@@ -275,5 +275,6 @@
 			"minItems": 1
 		}
 	},
-	"additionalProperties": false
+	"additionalProperties": false,
+	"minProperties" : 1
 }
