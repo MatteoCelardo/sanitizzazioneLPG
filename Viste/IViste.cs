@@ -13,7 +13,7 @@ public interface IViste
     /// </summary>
     void cancellaJSON();
     /// <summary>
-    /// richiede la validazione di un file JSON prima che venga importato
+    /// richiede la validazione dello schema di un file JSON prima che venga importato
     /// </summary>
     void validaJSON();
     /// <summary>

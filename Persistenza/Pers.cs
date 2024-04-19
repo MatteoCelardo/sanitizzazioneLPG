@@ -31,7 +31,7 @@ public class Pers : IPers
         _catene = new List<Catena>();
     } 
 
-    public static Pers _Istanza {
+    public static Pers Istanza {
         get 
         {
             lock(_mutex)
