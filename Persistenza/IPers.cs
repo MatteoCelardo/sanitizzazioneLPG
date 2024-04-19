@@ -7,8 +7,18 @@ public interface IPers
     /// da sanitizzare
     /// </summary>
     /// <remarks>Il metodo suppone che sia già stata fatta la validazione del file specificato</remarks>
+    /// <remarks>
+    /// Si ricorda che nelle catene devono alternarsi nodi e relazioni, motivo 
+    /// per cui inserire due nodi o due relazioni di fila porterà alla generazione 
+    /// dell'eccezione <c>PersExcEmpty</c>
+    /// </remarks>
     /// <param name="path">Percorso al file JSON con le istruzioni di sanitizzazione</param>
-    /// <exception cref="PersEcc">Eccezione sollevata nel caso in cui il file specificato sia vuoto</exception>
+    /// <exception cref="PersExcDupl">
+    /// Eccezione sollevata nel caso una catena contenga uno o più id duplicati
+    /// </exception>
+    /// <exception cref="PersExcNotFound">
+    /// Eccezione sollevata nel caso un id specificato in una catena non sia presente
+    /// </exception>
     void Crea(string path);
 
     /// <summary>
@@ -29,6 +39,6 @@ public interface IPers
     /// permette di ottenere tutti gli oggetti presenti nella persistenza 
     /// </summary>
     /// <param name="etd">Tipo di oggetti del dominio di cui si vuole avere la lista</param>
-    /// <exception cref="PersEcc">Eccezione sollevata nel caso la lista degli oggetti richiesti sia vuota</exception>
+    /// <exception cref="PersExcNotFound">Eccezione sollevata nel caso la lista degli oggetti richiesti sia vuota</exception>
     List<IDom> ListAll(EnumTipoDom etd);
 }

@@ -1,13 +1,18 @@
 ﻿namespace sanitizzazioneLPG;
 
-public class Catena :IDom
+public class Catena : IDom
 {
-    private string[] _cat;
+    private List<IDom> _els;
 
-    public Catena(string[] cat)
+    public Catena()
     {
-        _cat = cat;
+        _els = new List<IDom>();
     }
 
-    public string[] Cat {get => _cat; set => _cat = value; }
+    public Catena(List<IDom> els)
+    {
+        _els = new List<IDom>(els);
+    }
+
+    public List<IDom> Els {get => _els; set => _els = value; }
 }
