@@ -1,0 +1,11 @@
+- inserita la necessità di inserire almeno un elemento per:
+    * IdNodo.Etichette
+    * IdNodo.PropStr (anche per rispettivo in IdRel)
+    * IdNodo.PropNum (anche per rispettivo in IdRel)
+    * Nodo.DaSanitizzare.EtichetteSens
+    * DaSanitizzare.PropSempreSens (sia nodi che relazioni)
+    * DaSanitizzare.PropSensAssoc (sia nodi che relazioni)
+    * il vettore delle catene 
+    * ogni catena del vettore 
+  La considerazione fatta vale unicamente nel caso in cui i campi citati dovessero 
+  esistere.

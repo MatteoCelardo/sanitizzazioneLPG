@@ -1,4 +1,9 @@
-﻿namespace sanitizzazioneLPG;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Schema;
+using System.Reflection;
+
+namespace sanitizzazioneLPG;
 
 
 class Program
@@ -27,8 +32,15 @@ class Program
 
 
         foreach (ValidationError e in errors)
-            Console.Write(e.Message);
-        */
+            Console.Write(e.Message);*/
+        
     }
+
+    /*
+    class FileJson {
+        public Nodo[]? nodiSensibili { get; set; }
+        public Relazione[]? relSensibili {  get; set; } 
+        public string[][]? catene {get; set;}
+    }*/
 
 }
