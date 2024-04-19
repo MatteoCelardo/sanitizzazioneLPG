@@ -15,8 +15,8 @@ public class Pers : IPers
     private List<Catena> _catene;
 
     #region singleton
-    private static Pers? istanza = null;
-    private static object mutex = new object();
+    private static Pers? _istanza = null;
+    private static object _mutex = new object();
 
 
     private Pers(){
@@ -31,14 +31,14 @@ public class Pers : IPers
         _catene = new List<Catena>();
     } 
 
-    public static Pers Istanza {
+    public static Pers _Istanza {
         get 
         {
-            lock(mutex)
+            lock(_mutex)
             {
-                if (istanza == null)
-                    istanza = new Pers();
-                return istanza;
+                if (_istanza == null)
+                    _istanza = new Pers();
+                return _istanza;
             }
         }
     }
@@ -54,9 +54,16 @@ public class Pers : IPers
     public void Crea(string path)
     {
         IDom? d;
-        string json = File.ReadAllText(path);
+        string json;
+        FileJson? dati;
+
+        // generazione di un'eccezione se sno già presenti dati in memoria
+        if(_nodi.Count > 0 || _relazioni.Count > 0 || _catene.Count > 0)
+            throw new PersExc("impossibile caricare il contenuto del file JSON: sono già presenti informazioni nella persistenza. Cancellarle prima di importare nuovi dati.");
+
+        json = File.ReadAllText(path);
         // parsing del file JSON per ottenere i rispettivi oggetti C#
-        FileJson? dati = JsonConvert.DeserializeObject<FileJson>(json);
+        dati = JsonConvert.DeserializeObject<FileJson>(json);
 
         // importazione di nodi, relazioni e catene senisbili negli attributi della 
         // persistenza.
@@ -74,13 +81,13 @@ public class Pers : IPers
             {
                 // verifica che una catena non contenga più volte lo stesso id
                 if(dati.catene[i].Length != dati.catene[i].Distinct().Count())
-                    throw new PersExcDupl("la catena numero " + i + " contiene id duplicati");
+                    throw new PersExcDupl("la catena numero " + i + " contiene id duplicati.");
 
                 _catene.Add(new Catena());
                 // inserimento del primo elemento della catena per semplificare le 
                 // operazioni nel ciclo for
                 d = (IDom?)_nodi.Find(n => n.IdCat != null && n.IdCat.Equals(dati.catene[i][0])) ?? _relazioni.Find(r => r.IdCat != null && r.IdCat.Equals(dati.catene[i][0]));
-                _catene[i].Els.Add(d ?? throw new PersExcNotFound("l'id specificato nella catena " + i + " in posizione 0 non corrisponde nessun nodo o relazione"));
+                _catene[i].Els.Add(d ?? throw new PersExcNotFound("l'id specificato nella catena " + i + " in posizione 0 non corrisponde nessun nodo o relazione."));
                 
                 for(int j = 1; j < dati.catene[i].Length; j++)
                 {
@@ -90,7 +97,7 @@ public class Pers : IPers
                     
                     // se l'elemento appena trovato è dello stesso tipo del precedente, viene sollevata un'eccezione
                     if(_catene[i].Els[j-1].GetType() == d.GetType())
-                        throw new PersExc("l'elemento in posizione " + j + " della catena " + i + " è dello stesso tipo dell'elemento precedente");
+                        throw new PersExc("l'elemento in posizione " + j + " della catena " + i + " è dello stesso tipo dell'elemento precedente.");
                     
                     _catene[i].Els.Add(d);
                 }
@@ -109,18 +116,18 @@ public class Pers : IPers
         {
             case EnumTipoDom.NODI:
                 if(_nodi.Count == 0)
-                    throw new PersExcNotFound("La lista dei nodi è vuota");
+                    throw new PersExcNotFound("La lista dei nodi è vuota.");
                 return new List<IDom>(_nodi); 
             case EnumTipoDom.RELAZIONI: 
                 if(_relazioni.Count == 0)
-                    throw new PersExcNotFound("La lista delle relazioni è vuota");
+                    throw new PersExcNotFound("La lista delle relazioni è vuota.");
                 return new List<IDom>(_relazioni);
             case EnumTipoDom.CATENE:
                 if(_catene.Count == 0)
-                    throw new PersExcNotFound("La lista delle catene è vuota");
+                    throw new PersExcNotFound("La lista delle catene è vuota.");
                 return new List<IDom>(_catene);  
             default: 
-                throw new ArgumentException("l'enumerativo passato non è valido");
+                throw new ArgumentException("l'enumerativo passato non è valido.");
         }
     }
 
