@@ -19,6 +19,9 @@ public interface IPers
     /// <exception cref="PersExcNotFound">
     /// Eccezione sollevata nel caso un id specificato in una catena non sia presente
     /// </exception>
+    /// <exception cref="PersExc">
+    /// Eccezione sollevata nel caso in cui l'oggetto di una catena sia dello stesso tipo del precedente
+    /// </exception>
     void Crea(string path);
 
     /// <summary>

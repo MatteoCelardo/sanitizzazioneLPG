@@ -13,7 +13,8 @@
 - chiedere se si preferisca implementazione delle catene a liste paralle (le catene 
   devono per forza iniziare e finire con un nodo, oltre ad alternanza nodo-relazione) 
   oppure senza vincoli sull'ordine degli elementi di partenza e fine degli elementi 
-  (l'unico vincolo sarebbe che debbano essere alternati nodi e relazioni)
+  (l'unico vincolo sarebbe che debbano essere alternati nodi e relazioni). vedere 
+  quaderno verde
 
 - al momento, un id può essere parte di più catene, ma può apparire una volta 
   sola per ciascuna. NOTA: solo gli elementi che fanno parte di una catena devono 
