@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace sanitizzazioneLPG.Models;
+namespace sanitizzazioneLPG.Dominio;
 
 public class DaSanitizzareRel_
 {

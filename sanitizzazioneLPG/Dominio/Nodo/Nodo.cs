@@ -1,4 +1,4 @@
-﻿namespace sanitizzazioneLPG.Models;
+﻿namespace sanitizzazioneLPG.Dominio;
 
 public class Nodo : IDom
 {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace sanitizzazioneLPG.Persistence;
+namespace sanitizzazioneLPG.Persistenza;
 
 /// <summary>
 /// Classe usata per eccezioni generiche della persistenza

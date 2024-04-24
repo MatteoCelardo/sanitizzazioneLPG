@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace sanitizzazioneLPG.Persistence;
+namespace sanitizzazioneLPG.Persistenza;
 
 /// <summary>
 /// classe usata per indicare che sono stati trovati due elementi con lo stesso id

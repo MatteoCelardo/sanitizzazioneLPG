@@ -4,14 +4,12 @@ using Newtonsoft.Json.Schema;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Linq;
-using sanitizzazioneLPG.Models;
-using sanitizzazioneLPG;
+using sanitizzazioneLPG.Dominio;
 using Avalonia.Platform;
 
 
-namespace sanitizzazioneLPG.Persistence;
+namespace sanitizzazioneLPG.Persistenza;
 
 public class Pers : IPers
 {
@@ -29,7 +27,7 @@ public class Pers : IPers
 
     private Pers(){
         // Caricamento in memoria del file con lo schema JSON
-        StreamReader file = new StreamReader(AssetLoader.Open(new Uri("avares://"+ typeof(Program).Assembly.GetName().Name +"/Assets/Schema.json")));
+        StreamReader file = new StreamReader(AssetLoader.Open(new Uri("avares://"+ typeof(Program).Assembly.GetName().Name +"/Risorse/Schema.json")));
         JsonTextReader reader = new JsonTextReader(file);
         _schVal = JSchema.Load(reader); // memorizzazione dello schema JSON
 

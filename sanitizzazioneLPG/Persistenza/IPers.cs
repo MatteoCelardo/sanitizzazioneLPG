@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using sanitizzazioneLPG.Models;
+using sanitizzazioneLPG.Dominio;
 
-namespace sanitizzazioneLPG.Persistence;
+namespace sanitizzazioneLPG.Persistenza;
 
 public interface IPers
 {
