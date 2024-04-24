@@ -55,6 +55,11 @@ public class Gestore : IServizio
         }
     }
 
+    public void MostraMsg(string titolo, string msg)
+    {
+        MessageBoxManager.GetMessageBoxStandard(titolo, msg,ButtonEnum.Ok);
+    }
+
     public async void SanitizzaDB(EnumSanit s)
     {
         List<string> queryNodi;

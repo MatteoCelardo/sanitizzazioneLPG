@@ -53,6 +53,7 @@
         
         <Button 
             Content="Cancella JSON" 
+            Command="{Binding CancellaJSONCommand}"
             Grid.Row="1" 
             Grid.Column="2" 
             HorizontalContentAlignment="Center" 
@@ -60,6 +61,7 @@
         
         <Button 
             Content="Valida JSON" 
+            Command="{Binding ValidaJSONCommand}"
             Grid.Row="2" 
             Grid.Column="2" 
             HorizontalContentAlignment="Center" 
@@ -67,6 +69,7 @@
         
         <Button 
             Content="Sanitizza DB" 
+            Command="{Binding SanitizzaDBCommand}"
             Grid.Row="3" 
             Grid.Column="2" 
             HorizontalContentAlignment="Center" 

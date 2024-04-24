@@ -21,4 +21,10 @@ public interface IServizio
     /// importato con <c>importaJSON()</c>
     /// </summary>
     void SanitizzaDB(EnumSanit s);
+    /// <summary>
+    /// permette di mostrare un popup contenente un messaggio e il tasto ok
+    /// </summary>
+    /// <param name="titolo">titolo della finestra popup</param>
+    /// <param name="msg">messaggio da mostrare</param>
+    void MostraMsg(string titolo, string msg);
 }
