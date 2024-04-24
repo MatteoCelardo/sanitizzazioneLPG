@@ -20,14 +20,14 @@
         RowDefinitions="*,*,*,*"  
         Margin="20">
         
-        <TextBlock 
+        <TextBlock
             Text="File: " 
             Grid.Row="0" 
             Grid.Column="0" 
             FontWeight="Bold"/>
 
         <TextBlock 
-            Text="provaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprova" 
+            Text="{Binding Percorso}" 
             TextWrapping="Wrap" 
             Grid.Row="0" 
             Grid.Column="1"/>
@@ -45,11 +45,11 @@
 
         <Button 
             Content="Importa JSON" 
+            Command="{Binding ImportaJSONCommand}"
             Grid.Row="0" 
             Grid.Column="2" 
             HorizontalContentAlignment="Center" 
-            HorizontalAlignment="Stretch"
-            x:Name="ImportaBottone"/>
+            HorizontalAlignment="Stretch"/>
         
         <Button 
             Content="Cancella JSON" 
