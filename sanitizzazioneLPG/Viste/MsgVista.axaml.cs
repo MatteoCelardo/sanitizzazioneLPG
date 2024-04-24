@@ -2,11 +2,11 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
-namespace sanitizzazioneLPG;
+namespace sanitizzazioneLPG.Viste;
 
-public partial class MsgPopUp : Window
+public partial class MsgVista : Window
 {
-    public MsgPopUp()
+    public MsgVista()
     {
         InitializeComponent();
     }

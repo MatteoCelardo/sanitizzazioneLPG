@@ -1,8 +1,7 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using sanitizzazioneLPG.ViewModels;
-using sanitizzazioneLPG.Views;
+using sanitizzazioneLPG.Viste;
 
 namespace sanitizzazioneLPG;
 
@@ -17,9 +16,9 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.MainWindow = new MainWindow
+            desktop.MainWindow = new HomeVista
             {
-                DataContext = new MainWindowViewModel(),
+                DataContext = new HomeVista(),
             };
         }
 

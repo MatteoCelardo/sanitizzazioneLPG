@@ -1,7 +1,7 @@
 using System;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
-using sanitizzazioneLPG.ViewModels;
+using sanitizzazioneLPG.ModelliViste;
 
 namespace sanitizzazioneLPG;
 
@@ -13,7 +13,7 @@ public class ViewLocator : IDataTemplate
         if (data is null)
             return null;
         
-        var name = data.GetType().FullName!.Replace("ViewModel", "View", StringComparison.Ordinal);
+        var name = data.GetType().FullName!.Replace("ModelloVista", "Vista", StringComparison.Ordinal);
         var type = Type.GetType(name);
 
         if (type != null)
@@ -23,11 +23,11 @@ public class ViewLocator : IDataTemplate
             return control;
         }
         
-        return new TextBlock { Text = "Not Found: " + name };
+        return new TextBlock { Text = "Non trovato: " + name };
     }
 
     public bool Match(object? data)
     {
-        return data is ViewModelBase;
+        return data is ModelloVistaBase;
     }
 }
