@@ -1,6 +1,6 @@
-﻿namespace sanitizzazioneLPG.ViewModels;
+﻿namespace sanitizzazioneLPG.Servizio;
 
-public interface IMainWindowVM
+public interface IServizio
 {
     /// <summary>
     /// importa all'interno della persistenza il contenuto del file JSON con 
