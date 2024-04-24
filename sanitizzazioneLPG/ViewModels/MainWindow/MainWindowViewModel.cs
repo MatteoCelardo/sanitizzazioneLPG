@@ -8,29 +8,12 @@ public class MainWindowViewModel : ViewModelBase, IMainWindowVM
 {
     private readonly IPers _pers;
 
-    #region singleton
-    private static MainWindowViewModel? _istanza = null;
-    private static object mutex = new object();
 
-    private MainWindowViewModel()
+    public MainWindowViewModel()
     {
         _pers = Pers.Istanza;
     }
 
-    public static MainWindowViewModel Istanza
-    {
-        get 
-        {
-            lock(mutex)
-            {
-                if (_istanza == null)
-                    _istanza = new MainWindowViewModel();
-
-                return _istanza;
-            }
-        }
-    }
-    #endregion
 
 
     public void CancellaJSON()
