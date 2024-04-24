@@ -12,6 +12,8 @@
     <Folder Include="Dominio/" />
     <AvaloniaResource Include="Risorse/**" />
     <Folder Include="Persistenza/" />
+    <Folder Include="Viste/" />
+    <Folder Include="ModelliViste/" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,6 +26,7 @@
     <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.10" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
     <PackageReference Include="MessageBox.Avalonia" Version="3.1.5.1" />
+    <PackageReference Include="Neo4jClient" Version="5.1.15" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Newtonsoft.Json.Schema" Version="3.0.15" />
   </ItemGroup>

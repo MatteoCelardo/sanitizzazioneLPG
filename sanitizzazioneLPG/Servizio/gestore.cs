@@ -93,11 +93,11 @@ public class Gestore : IServizio
     }
 
     private List<string> GeneraQueryRel()
-    {}
+    {return new List<string>();}
 
     private List<string> GeneraQueryNodi()
-    {}
+    {return new List<string>();}
 
     private List<string> GeneraQueryCat()
-    {}
+    {return new List<string>();}
 }
