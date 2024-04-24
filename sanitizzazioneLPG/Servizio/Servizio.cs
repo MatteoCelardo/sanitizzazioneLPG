@@ -4,7 +4,7 @@ using sanitizzazioneLPG.Persistence;
 
 namespace sanitizzazioneLPG.Servizio;
 
-public class Servizio
+public class Servizio : IServizio
 {
     private readonly IPers _pers;
 
