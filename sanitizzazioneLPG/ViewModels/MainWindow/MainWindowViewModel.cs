@@ -33,16 +33,17 @@ public class MainWindowViewModel : ViewModelBase, IMainWindowVM
     #endregion
 
 
-    public void cancellaJSON()
+    public void CancellaJSON()
     {
         _pers.Cancella();
     }
 
-    public void importaJSON(string path)
+    public void ImportaJSON(string path)
     {
         try
         {
-            _pers.Crea(path);
+            if (ValidaJSON(path))
+                _pers.Crea(path);
 
             //implementare una classe con un metodo statico di questo tipo. vedere se aggiungere la possibilità di usare bottoni e specificare l'icona.
             //inserire un messaggio per dire che tutto è andato a buon fine
@@ -55,19 +56,22 @@ public class MainWindowViewModel : ViewModelBase, IMainWindowVM
         }
     }
 
-    public void sanitizzaDB(EnumSanit s)
+    public void SanitizzaDB(EnumSanit s)
     {
         throw new NotImplementedException();
     }
 
-    public void validaJSON(string path)
+    public bool ValidaJSON(string path)
     {
         List<string> err = _pers.Valida(path);
-
+        bool ret = err.Count == 0; 
+        
         /*
-        if(err.Count == 0)
+        if(ret)
             //inserire un message box per dire che la validazione è andata a buon fine
         else 
-            //inserire un message box che contenga tutti quanti gli errori in err*/
+            //inserire un message box che contenga tutti quanti gli errori in err
+            */
+        return ret;
     }
 }

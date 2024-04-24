@@ -15,5 +15,61 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
+    <Grid 
+        ColumnDefinitions="5*,70*,25*" 
+        RowDefinitions="*,*,*,*"  
+        Margin="20">
+        
+        <TextBlock 
+            Text="File: " 
+            Grid.Row="0" 
+            Grid.Column="0" 
+            FontWeight="Bold"/>
 
+        <TextBlock 
+            Text="provaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprovaprova" 
+            TextWrapping="Wrap" 
+            Grid.Row="0" 
+            Grid.Column="1"/>
+
+        <TextBox 
+            Watermark="Contenuto file JSon" 
+            Grid.Row="1" 
+            Grid.Column="0" 
+            Grid.ColumnSpan="2" 
+            Grid.RowSpan="2" 
+            TextWrapping="NoWrap" 
+            AcceptsReturn="True" 
+            HorizontalContentAlignment="Stretch" 
+            VerticalContentAlignment="Stretch"/>
+
+        <Button 
+            Content="Importa JSON" 
+            Grid.Row="0" 
+            Grid.Column="2" 
+            HorizontalContentAlignment="Center" 
+            HorizontalAlignment="Stretch"
+            x:Name="ImportaBottone"/>
+        
+        <Button 
+            Content="Cancella JSON" 
+            Grid.Row="1" 
+            Grid.Column="2" 
+            HorizontalContentAlignment="Center" 
+            HorizontalAlignment="Stretch"/>
+        
+        <Button 
+            Content="Valida JSON" 
+            Grid.Row="2" 
+            Grid.Column="2" 
+            HorizontalContentAlignment="Center" 
+            HorizontalAlignment="Stretch"/>
+        
+        <Button 
+            Content="Sanitizza DB" 
+            Grid.Row="3" 
+            Grid.Column="2" 
+            HorizontalContentAlignment="Center" 
+            HorizontalAlignment="Stretch"/>
+    </Grid>
 </Window>
