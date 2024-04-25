@@ -34,11 +34,12 @@
 
         <TextBox 
             Watermark="Contenuto file JSon" 
+            Text="{Binding CodiceJson}"
+            TextWrapping="NoWrap" 
             Grid.Row="1" 
             Grid.Column="0" 
             Grid.ColumnSpan="2" 
-            Grid.RowSpan="2" 
-            TextWrapping="NoWrap" 
+            Grid.RowSpan="2"  
             AcceptsReturn="True" 
             HorizontalContentAlignment="Stretch" 
             VerticalContentAlignment="Stretch"/>
