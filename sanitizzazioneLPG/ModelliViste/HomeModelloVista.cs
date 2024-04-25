@@ -22,7 +22,6 @@ public partial class HomeModelloVista : ObservableObject
     // permette di rieseguire la canExecute su CancellaJSONCommand ogni volta che 
     // _percorso cambia valore
     [NotifyCanExecuteChangedFor(nameof(CancellaJSONCommand))]
-    [NotifyCanExecuteChangedFor(nameof(ValidaJSONCommand))]
     [NotifyCanExecuteChangedFor(nameof(SanitizzaDBCommand))]
     private string? _percorso;
 
@@ -56,16 +55,17 @@ public partial class HomeModelloVista : ObservableObject
             FileTypeFilter = new[] { Json }
         });
 
-        if (files.Count >= 1)
+        // i dati della view vengono aggiornati solo se l'importazione va a buon fine  
+        // e si è selezionato un file json
+        if (files.Count >= 1 && _s.ImportaJSON(files[0].Path.AbsolutePath))
         {
             Percorso = files[0].Path.AbsolutePath;
-            _s.ImportaJSON(Percorso);
             await using var stream = await files[0].OpenReadAsync();
             StreamReader streamReader = new StreamReader(stream);
             CodiceJson = streamReader.ReadToEnd();
         }
         else 
-            _s.MostraMsg("Errore","Scegliere un file JSON da importare",Icon.Error,ButtonEnum.Ok);
+            _s.MostraMsg("Errore","Non si è selezionato un file JSON o si sono verificati errori in fase di importazione",Icon.Error,ButtonEnum.Ok);
     }
 
     // funzione per specificare al file picker che deve prendere JSON
@@ -82,12 +82,6 @@ public partial class HomeModelloVista : ObservableObject
         _s.CancellaJSON();
         Percorso = null;
         CodiceJson = null;
-    }
-
-    [RelayCommand(CanExecute = nameof(JsonPresente))]
-    private void ValidaJSON()
-    {
-        _s.ValidaJSON(Percorso);
     }
 
     [RelayCommand(CanExecute = nameof(JsonPresente))]
