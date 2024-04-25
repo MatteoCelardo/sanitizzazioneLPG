@@ -41,9 +41,7 @@ public class Pers : IPers
         {
             lock(_mutex)
             {
-                if (_istanza == null)
-                    _istanza = new Pers();
-                return _istanza;
+                return _istanza ?? new Pers();
             }
         }
     }
@@ -139,24 +137,15 @@ public class Pers : IPers
         }
     }
 
-    public List<string> Valida(string path){
+    public IList<ValidationError> Valida(string path){
         // lettura del file da validare
         JObject json = JObject.Parse(File.ReadAllText(path));
         //inizializzazione della lista che conterrà gli eventuali errori riscontrati nel parsing
         IList<ValidationError> errori = new List<ValidationError>();
-        // lista di stringhe da ritornare
-        List<string> ret = new List<string>();
 
-        if(json.IsValid(_schVal, out errori))
-            return ret;
-        else 
-        {
-            // formattazione di ogni errore in una stringa
-            foreach(ValidationError e in errori)
-                ret.Add("Linea numero: " + e.LineNumber + " - Percorso: " + e.Path + " - Valore: " + e.Value + "\n" + "Errore: " + e.Message + "\n----\n");
+        json.IsValid(_schVal, out errori);
 
-            return ret;
-        }
+        return errori;
             
     }
 

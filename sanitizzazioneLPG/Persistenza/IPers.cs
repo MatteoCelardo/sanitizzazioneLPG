@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Newtonsoft.Json.Schema;
 using sanitizzazioneLPG.Dominio;
 
 namespace sanitizzazioneLPG.Persistenza;
@@ -41,7 +42,7 @@ public interface IPers
     /// <returns>
     /// Ritorna una lista vuota se non ci sono errori, la lista degli errori altrimenti 
     /// </returns>
-    List<string> Valida(string path);
+    IList<ValidationError> Valida(string path);
     
     /// <summary>
     /// permette di ottenere tutti gli oggetti presenti nella persistenza 
