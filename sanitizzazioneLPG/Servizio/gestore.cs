@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
+using Neo4jClient;
 using Newtonsoft.Json.Schema;
 using sanitizzazioneLPG.Persistenza;
 
@@ -70,23 +71,37 @@ public class Gestore : IServizio
 
     public async void SanitizzaDB(EnumSanit s)
     {
-        List<string> queryNodi;
-        List<string> queryRel;
-        List<string> queryCat;
+        /*
+        var client = new BoltGraphClient("bolt://localhost:7687", "neo4j", "tesiCelardo2024");
+        await client.ConnectAsync();
+        
+        await client.Cypher
+                    .Create("(:User {name:'temp'}), (:User {name:'wer', casa:'dasdioa'})")
+                    .ExecuteWithoutResultsAsync();
+
+        await client.Cypher
+                    .Match("(u:User)")
+                    .Where("u.name = 'wer'")
+                    .Delete("u")
+                    .ExecuteWithoutResultsAsync();*/
+        Task<List<string>> queryNodi;
+        Task<List<string>> queryRel;
+        Task<List<string>> queryCat;
 
         switch(s)
         {
             case EnumSanit.CANC: 
-                queryRel = await Task.Run(GeneraQueryNodi);
-                queryNodi = await Task.Run(GeneraQueryRel);
-                queryCat = await Task.Run(GeneraQueryCat);
+                queryRel = Task.Run(GeneraQueryNodi);
+                queryNodi = Task.Run(GeneraQueryRel);
+                queryCat = Task.Run(GeneraQueryCat);
+                Task.WaitAll(queryRel, queryNodi, queryCat);
+                Console.WriteLine(queryRel.Result[0] + queryCat.Result[0] + queryNodi.Result[0]);
                 break;
             default: 
                 this.MostraMsg("Errore", "Il tipo di sanitizzazione selezionato non esiste",Icon.Error,ButtonEnum.Ok);
                 break;
         }
     }
-
     
     public string ValidaJSON(string path)
     {
@@ -109,11 +124,20 @@ public class Gestore : IServizio
 
 
     private List<string> GeneraQueryRel()
-    {return new List<string>();}
+    {
+        //await Task.Delay(TimeSpan.FromSeconds(7));
+        return ["prova"];
+    }
 
-    private List<string> GeneraQueryNodi()
-    {return new List<string>();}
+    private async Task<List<string>> GeneraQueryNodi()
+    {
+        await Task.Delay(TimeSpan.FromSeconds(4));
+        return ["ciao"];
+    }
 
     private List<string> GeneraQueryCat()
-    {return new List<string>();}
+    {
+        //await Task.Delay(TimeSpan.FromSeconds(3));
+        return ["casa"];
+    }
 }
