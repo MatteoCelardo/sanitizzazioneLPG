@@ -59,7 +59,7 @@ public partial class HomeModelloVista : ObservableObject
         // e si è selezionato un file json
         if (files.Count >= 1 && _s.ImportaJSON(files[0].Path.AbsolutePath))
         {
-            Percorso = files[0].Path.AbsolutePath;
+            Percorso = "File:\n" + files[0].Path.AbsolutePath;
             await using var stream = await files[0].OpenReadAsync();
             StreamReader streamReader = new StreamReader(stream);
             CodiceJson = streamReader.ReadToEnd();

@@ -15,57 +15,72 @@
         <vm:HomeModelloVista/>
     </Design.DataContext>
 
+    <Window.Styles>
+        <StyleInclude Source="/Risorse/StileHome.xaml" />
+    </Window.Styles>
+
     <Grid 
-        ColumnDefinitions="5*,70*,25*" 
-        RowDefinitions="*,*,*"  
+        ColumnDefinitions="*,*" 
+        RowDefinitions="20*,70*"  
         Margin="20">
-        
-        <TextBlock
-            Text="File: " 
-            Grid.Row="0" 
-            Grid.Column="0" 
-            FontWeight="Bold"/>
+            
+            <Border  
+                Margin="10"
+                BoxShadow="5 5 10 0 DarkGray"
+                Grid.Row="0" 
+                Grid.Column="0">
+                    <ScrollViewer>
+                            <TextBlock 
+                                Text="{Binding Percorso}" 
+                                TextWrapping="Wrap" 
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/> 
 
-        <TextBlock 
-            Text="{Binding Percorso}" 
-            TextWrapping="Wrap" 
-            Grid.Row="0" 
-            Grid.Column="1"/>
+                    </ScrollViewer>  
 
-        <TextBox 
-            Watermark="Contenuto file JSon" 
-            Text="{Binding CodiceJson}"
-            TextWrapping="NoWrap" 
-            Grid.Row="1" 
-            Grid.Column="0" 
-            Grid.ColumnSpan="2" 
-            Grid.RowSpan="2"  
-            AcceptsReturn="True" 
-            HorizontalContentAlignment="Stretch" 
-            VerticalContentAlignment="Stretch"/>
+            </Border>
 
-        <Button 
-            Content="Importa JSON" 
-            Command="{Binding ImportaJSONCommand}"
-            Grid.Row="0" 
-            Grid.Column="2" 
-            HorizontalContentAlignment="Center" 
-            HorizontalAlignment="Stretch"/>
-        
-        <Button 
-            Content="Cancella JSON" 
-            Command="{Binding CancellaJSONCommand}"
-            Grid.Row="1" 
-            Grid.Column="2" 
-            HorizontalContentAlignment="Center" 
-            HorizontalAlignment="Stretch"/>
-        
-        <Button 
-            Content="Sanitizza DB" 
-            Command="{Binding SanitizzaDBCommand}"
-            Grid.Row="2" 
-            Grid.Column="2" 
-            HorizontalContentAlignment="Center" 
-            HorizontalAlignment="Stretch"/>
+            <StackPanel
+                Grid.Row="0"
+                Grid.Column="1">
+                    <Button 
+                        Content="Importa JSON" 
+                        Command="{Binding ImportaJSONCommand}"
+                        Grid.Row="0" 
+                        Grid.Column="2"/>
+
+                    <Button 
+                        Content="Cancella JSON" 
+                        Command="{Binding CancellaJSONCommand}"
+                        Grid.Row="1" 
+                        Grid.Column="2"/>
+
+                    <Button 
+                        Content="Sanitizza DB" 
+                        Command="{Binding SanitizzaDBCommand}"
+                        Grid.Row="2" 
+                        Grid.Column="2"/>
+
+            </StackPanel>
+
+            <Border
+                Margin="10"
+                BoxShadow="5 5 10 0 DarkGray"
+                Grid.Row="1" 
+                Grid.Column="0" 
+                Grid.ColumnSpan="2">
+
+                    <ScrollViewer 
+                        Classes="ScrollCodice">
+
+                            <TextBlock
+                                Text="{Binding CodiceJson}"
+                                TextWrapping="NoWrap" />
+
+                    </ScrollViewer>
+
+            </Border>
+
     </Grid>
+
 </Window>
