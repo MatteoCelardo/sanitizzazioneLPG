@@ -13,6 +13,7 @@
     <AvaloniaResource Include="Risorse/**" />
     <Folder Include="Persistenza/" />
     <Folder Include="Viste/" />
+    <Folder Include="ModelliViste/" />
   </ItemGroup>
 
   <ItemGroup>
