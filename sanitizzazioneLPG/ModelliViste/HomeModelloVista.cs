@@ -64,8 +64,6 @@ public partial class HomeModelloVista : ObservableObject
             StreamReader streamReader = new StreamReader(stream);
             CodiceJson = streamReader.ReadToEnd();
         }
-        else 
-            _s.MostraMsg("Errore","Non si è selezionato un file JSON o si sono verificati errori in fase di importazione",Icon.Error,ButtonEnum.Ok);
     }
 
     // funzione per specificare al file picker che deve prendere JSON
