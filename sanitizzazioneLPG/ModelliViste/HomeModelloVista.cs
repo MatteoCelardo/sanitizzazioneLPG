@@ -7,6 +7,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MsBox.Avalonia.Enums;
 using sanitizzazioneLPG.Servizio;
 
 namespace sanitizzazioneLPG.ModelliViste;
@@ -64,7 +65,7 @@ public partial class HomeModelloVista : ObservableObject
             CodiceJson = streamReader.ReadToEnd();
         }
         else 
-            _s.MostraMsg("Errore","Scegliere un file JSON da importare");
+            _s.MostraMsg("Errore","Scegliere un file JSON da importare",Icon.Error,ButtonEnum.Ok);
     }
 
     // funzione per specificare al file picker che deve prendere JSON

@@ -91,18 +91,21 @@ public class Pers : IPers
                 _catene.Add(new Catena());
                 // inserimento del primo elemento della catena per semplificare le 
                 // operazioni nel ciclo for
-                d = (IDom?)_nodi.Find(n => n.IdCat != null && n.IdCat.Equals(dati.catene[i][0])) ?? _relazioni.Find(r => r.IdCat != null && r.IdCat.Equals(dati.catene[i][0]));
+                d = (IDom?)_nodi.Find(n => n.IdCat != null && n.IdCat.Equals(dati.catene[i][0])) 
+                    ?? _relazioni.Find(r => r.IdCat != null && r.IdCat.Equals(dati.catene[i][0]));
                 _catene[i].Els.Add(d ?? throw new PersExcNotFound("l'id specificato nella catena " + i + " in posizione 0 non corrisponde nessun nodo o relazione."));
                 
                 for(int j = 1; j < dati.catene[i].Length; j++)
                 {
                     // ricerca dell'oggetto che ha come id la stringa contenuta in dati.catene[i][j]
                     // nel caso non esista un nodo o una relazione con quell'id, viene sollevata un'eccezione 
-                    d = (IDom?)_nodi.Find(n => n.IdCat != null && n.IdCat.Equals(dati.catene[i][j])) ?? _relazioni.Find(r => r.IdCat != null && r.IdCat.Equals(dati.catene[i][j])) ?? throw new PersExcNotFound("l'id specificato nella catena " + i + " in posizione " + j + " non corrisponde a nessun nodo o relazione");
+                    d = (IDom?)_nodi.Find(n => n.IdCat != null && n.IdCat.Equals(dati.catene[i][j])) 
+                        ?? _relazioni.Find(r => r.IdCat != null && r.IdCat.Equals(dati.catene[i][j])) 
+                        ?? throw new PersExcNotFound("l'id specificato nella catena " + i + " in posizione " + j + " non corrisponde a nessun nodo o relazione");
                     
                     // se l'elemento appena trovato è dello stesso tipo del precedente, viene sollevata un'eccezione
                     if(_catene[i].Els[j-1].GetType() == d.GetType())
-                        throw new PersExc("l'elemento in posizione " + j + " della catena " + i + " è dello stesso tipo dell'elemento precedente.");
+                        throw new PersExcDupl("l'elemento in posizione " + j + " della catena " + i + " è dello stesso tipo dell'elemento precedente.");
                     
                     _catene[i].Els.Add(d);
                 }

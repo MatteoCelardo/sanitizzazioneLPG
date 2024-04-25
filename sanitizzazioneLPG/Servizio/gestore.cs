@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
 using sanitizzazioneLPG.Persistenza;
@@ -13,18 +14,18 @@ public class Gestore : IServizio
 
     #region singleton
     private static Gestore? _istanza = null;
-    private static object mutex = new object();
+    private static object _mutex = new object();
 
     private Gestore()
     {
-        _pers = Pers.Istanza;
+        this._pers = Pers.Istanza;
     }
 
     public static Gestore Istanza 
     {
         get 
         {
-            lock(mutex)
+            lock(_mutex)
             {
                 return _istanza ?? new Gestore();
             }
@@ -34,8 +35,8 @@ public class Gestore : IServizio
 
     public void CancellaJSON()
     {
-        _pers.Cancella();
-        MessageBoxManager.GetMessageBoxStandard("Info", "Cancellazione del precedente file JSON importato completata correttamente",ButtonEnum.Ok);
+        this._pers.Cancella();
+        this.MostraMsg("Info", "Cancellazione del precedente file JSON importato completata correttamente",Icon.Info,ButtonEnum.Ok);
     }
 
     public void ImportaJSON(string path)
@@ -44,20 +45,17 @@ public class Gestore : IServizio
         {
             if (ValidaJSON(path))
             {
-                _pers.Crea(path);
-                MessageBoxManager.GetMessageBoxStandard("Info", "Importazione del file JSON portata a termine correttamente",ButtonEnum.Ok);
+                this._pers.Crea(path);
+                this.MostraMsg("Info", "Importazione del file JSON portata a termine correttamente",Icon.Info,ButtonEnum.Ok);
             }
             
         }
-        catch (PersExc e) 
+        catch (PersExc e)
         {
-            MessageBoxManager.GetMessageBoxStandard("Errore", e.Message,ButtonEnum.Ok);
+            this.MostraMsg("Errore", e.Message,Icon.Error,ButtonEnum.Ok);
+            if (e is PersExcDupl || e is PersExcNotFound)
+                this.CancellaJSON();
         }
-    }
-
-    public void MostraMsg(string titolo, string msg)
-    {
-        MessageBoxManager.GetMessageBoxStandard(titolo, msg,ButtonEnum.Ok);
     }
 
     public async void SanitizzaDB(EnumSanit s)
@@ -74,7 +72,7 @@ public class Gestore : IServizio
                 queryCat = await Task.Run(GeneraQueryCat);
                 break;
             default: 
-                MessageBoxManager.GetMessageBoxStandard("Errore", "Il tipo di sanitizzazione selezionato non",ButtonEnum.Ok);
+                this.MostraMsg("Errore", "Il tipo di sanitizzazione selezionato non esiste",Icon.Error,ButtonEnum.Ok);
                 break;
         }
     }
@@ -85,17 +83,23 @@ public class Gestore : IServizio
         bool ret = err.Count == 0;
 
         if(ret)
-            MessageBoxManager.GetMessageBoxStandard("Info", $"Il file al percorso {path} è valido rispetto allo schema",ButtonEnum.Ok);
+            this.MostraMsg("Info", $"Il file al percorso {path} è valido rispetto allo schema",Icon.Info,ButtonEnum.Ok);
         else 
         {
             string msg = $"Il file al percorso {path} non rispetta lo schema predefinito.\n Errori: ";
             foreach(string s in err)
                 msg += s;
-            MessageBoxManager.GetMessageBoxStandard("Errore", msg,ButtonEnum.Ok);
+            this.MostraMsg("Errore", msg,Icon.Error,ButtonEnum.Ok);
         }
 
         return ret;
     }
+
+    public void MostraMsg(string titolo, string msg,Icon i = Icon.None, ButtonEnum b = ButtonEnum.Ok)
+    {
+        MessageBoxManager.GetMessageBoxStandard(titolo, msg, b, i).ShowAsync();
+    }
+
 
     private List<string> GeneraQueryRel()
     {return new List<string>();}

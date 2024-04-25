@@ -2,9 +2,6 @@
 
 namespace sanitizzazioneLPG.Persistenza;
 
-/// <summary>
-/// classe usata per indicare che sono stati trovati due elementi con lo stesso id
-/// </summary>
 public class PersExcDupl : PersExc
 {
     public PersExcDupl()

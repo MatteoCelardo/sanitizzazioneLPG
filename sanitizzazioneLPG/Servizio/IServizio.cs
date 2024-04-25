@@ -1,4 +1,7 @@
-﻿namespace sanitizzazioneLPG.Servizio;
+﻿using Avalonia.Controls;
+using MsBox.Avalonia.Enums;
+
+namespace sanitizzazioneLPG.Servizio;
 
 public interface IServizio
 {
@@ -26,5 +29,7 @@ public interface IServizio
     /// </summary>
     /// <param name="titolo">titolo della finestra popup</param>
     /// <param name="msg">messaggio da mostrare</param>
-    void MostraMsg(string titolo, string msg);
+    /// <param name="i">icona da mostrare</param>
+    /// <param name="b">bottoni da mostrare</param>
+    void MostraMsg(string titolo, string msg, Icon i, ButtonEnum b);
 }
