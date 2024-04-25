@@ -9,6 +9,7 @@ public interface IServizio
     /// importa all'interno della persistenza il contenuto del file JSON con 
     /// la specifica degli elementi da sanitizzare nel DB
     /// </summary>
+    /// <param name="path">percorso al file da importare</param>
     void ImportaJSON(string path);
     /// <summary>
     /// cancella le informazioni relative al file JSON caricato 
@@ -18,11 +19,13 @@ public interface IServizio
     /// <summary>
     /// valida lo schema di un file JSON prima che venga importato
     /// </summary>
-    bool ValidaJSON(string path);
+    /// <param name="path">percorso al file da importare</param>
+    void ValidaJSON(string path);
     /// <summary>
     /// sanitizza il DB secondo le specifiche date dal file JSON 
     /// importato con <c>importaJSON()</c>
     /// </summary>
+    /// <param name="s">indica che azione vada intesa come sanitizzazione</param>
     void SanitizzaDB(EnumSanit s);
     /// <summary>
     /// permette di mostrare un popup contenente un messaggio e il tasto ok
