@@ -37,19 +37,21 @@ public class Gestore : IServizio
     public void CancellaJSON()
     {
         this._pers.Cancella();
-        this.MostraMsg("Info", "Cancellazione del precedente file JSON importato completata correttamente",Icon.Info,ButtonEnum.Ok);
+        this.MostraMsg("Info", "Cancellazione dei dati precedenemtente importati completata correttamente",Icon.Info,ButtonEnum.Ok);
     }
 
-    public void ImportaJSON(string path)
+    public bool ImportaJSON(string path)
     {
         string err;
+        bool ret = false;
         try
         {
-            err = this.Valida(path);
+            err = this.ValidaJSON(path);
             if (string.IsNullOrEmpty(err))
             {
                 this._pers.Crea(path);
                 this.MostraMsg("Info", "Importazione del file JSON portata a termine correttamente",Icon.Info,ButtonEnum.Ok);
+                ret = true;
             }
             else 
                 this.MostraMsg("Errore", err,Icon.Error,ButtonEnum.Ok);
@@ -60,8 +62,10 @@ public class Gestore : IServizio
             
             if (e is PersExcDupl || e is PersExcNotFound)
                 this.CancellaJSON();
-                this.MostraMsg("Errore", e.Message + "\nI dati importati in precedenza verranno cancellati.",Icon.Error,ButtonEnum.Ok);
+            this.MostraMsg("Errore", e.Message,Icon.Error,ButtonEnum.Ok);
         }
+
+        return ret;
     }
 
     public async void SanitizzaDB(EnumSanit s)
@@ -83,31 +87,8 @@ public class Gestore : IServizio
         }
     }
 
-    public void ValidaJSON(string path)
-    {
-        string err = this.Valida(path);
-
-        if(string.IsNullOrEmpty(err))
-            this.MostraMsg("Info", $"Il file al percorso {path} è valido rispetto allo schema",Icon.Info,ButtonEnum.Ok);
-        else 
-            this.MostraMsg("Errore", err,Icon.Error,ButtonEnum.Ok);
-        
-    }
-
-    public void MostraMsg(string titolo, string msg,Icon i = Icon.None, ButtonEnum b = ButtonEnum.Ok)
-    {
-        MessageBoxManager.GetMessageBoxStandard(titolo, msg, b, i).ShowAsync();
-    }
-
-    /// <summary>
-    /// effettua la validazione senza mostrare messaggi all'utente
-    /// </summary>
-    /// <param name="path">percorso al file da validare</param>
-    /// <returns>
-    /// stringa formattata con gli errori riscontrati o stringa vuota in assenza 
-    /// di errori
-    /// /returns>
-    private string Valida(string path)
+    
+    public string ValidaJSON(string path)
     {
         IList<ValidationError> err = _pers.Valida(path);
         string ret = "";
@@ -116,9 +97,14 @@ public class Gestore : IServizio
         {
             ret = $"Il file al percorso {path} non rispetta lo schema predefinito.\n Errori: \n";
             foreach(ValidationError e in err)
-                ret += " - Linea numero: " + e.LineNumber + " - Percorso: " + e.Path + " - Valore: " + e.Value + "\n" + "Errore: " + e.Message + "\n----\n";
+                ret += "\t- Linea numero: " + e.LineNumber + " - Percorso: " + e.Path + " - Valore: " + e.Value + "\n" + "\t\tErrore: " + e.Message + "\n----\n";
         }
         return ret;
+    }
+
+    public void MostraMsg(string titolo, string msg,Icon i = Icon.None, ButtonEnum b = ButtonEnum.Ok)
+    {
+        MessageBoxManager.GetMessageBoxStandard(titolo, msg, b, i).ShowAsync();
     }
 
 

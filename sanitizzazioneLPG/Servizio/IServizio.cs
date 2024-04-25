@@ -10,17 +10,22 @@ public interface IServizio
     /// la specifica degli elementi da sanitizzare nel DB
     /// </summary>
     /// <param name="path">percorso al file da importare</param>
-    void ImportaJSON(string path);
+    /// <returns><c>true</c> se l'importazione è andata a buon fine, <c>false</c> altrimenti</returns>
+    bool ImportaJSON(string path);
     /// <summary>
     /// cancella le informazioni relative al file JSON caricato 
     /// in precedenza con la funzione <c>importaJSON()</c>
     /// </summary>
     void CancellaJSON();
     /// <summary>
-    /// valida lo schema di un file JSON prima che venga importato
+    /// valida lo schema di un file JSON con quello predefinito
     /// </summary>
     /// <param name="path">percorso al file da importare</param>
-    void ValidaJSON(string path);
+    /// <returns>
+    /// stringa formattata con gli errori riscontrati o stringa vuota in assenza 
+    /// di errori
+    /// /returns>
+    string ValidaJSON(string path);
     /// <summary>
     /// sanitizza il DB secondo le specifiche date dal file JSON 
     /// importato con <c>importaJSON()</c>
