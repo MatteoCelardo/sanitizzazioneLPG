@@ -1,5 +1,9 @@
 ﻿{
 	"type": "object",
+	"anyOf": [
+		{ "required": [ "NodiSensibili" ] },
+		{ "required": [ "RelSensibili" ] }
+	],
 	"properties": {
 		"NodiSensibili": {
 			"description": "vettore dei nodi da sanitizzare singolarmente",
@@ -270,11 +274,10 @@
 				"items": {
 					"type": "string"
 				},
-				"minItems": 1
+				"minItems": 2
 			},
 			"minItems": 1
 		}
 	},
-	"additionalProperties": false,
-	"minProperties" : 1
+	"additionalProperties": false
 }
