@@ -47,7 +47,6 @@ public class Pers : IPers
     }
     #endregion
 
-    #region metodi interfaccia
     public void Cancella()
     {
         _nodi.Clear();
@@ -149,15 +148,6 @@ public class Pers : IPers
         return errori;
             
     }
-    #endregion
-
-    #region Proprietà pubbliche
-
-    public List<Nodo> Nodi{ get => new List<Nodo>(_nodi);}
-    private List<Relazione> Relazioni {get => new List<Relazione>(_relazioni);}
-    private List<Catena> Catene {get => new List<Catena>(_catene);}
-
-    #endregion
 
 
     //classe privata di appoggio usata dal parser newtonsoft per ricavare gli oggetti C# dal file JSON
