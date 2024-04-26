@@ -47,6 +47,7 @@ public class Pers : IPers
     }
     #endregion
 
+    #region metodi interfaccia
     public void Cancella()
     {
         _nodi.Clear();
@@ -148,6 +149,7 @@ public class Pers : IPers
         return errori;
             
     }
+    #endregion
 
 
     //classe privata di appoggio usata dal parser newtonsoft per ricavare gli oggetti C# dal file JSON
