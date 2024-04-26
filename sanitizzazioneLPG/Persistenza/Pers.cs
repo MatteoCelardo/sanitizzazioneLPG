@@ -122,16 +122,10 @@ public class Pers : IPers
         switch(etd)
         {
             case EnumTipoDom.NODI:
-                if(_nodi.Count == 0)
-                    throw new PersExcNotFound("La lista dei nodi è vuota.");
                 return new List<IDom>(_nodi); 
             case EnumTipoDom.RELAZIONI: 
-                if(_relazioni.Count == 0)
-                    throw new PersExcNotFound("La lista delle relazioni è vuota.");
                 return new List<IDom>(_relazioni);
             case EnumTipoDom.CATENE:
-                if(_catene.Count == 0)
-                    throw new PersExcNotFound("La lista delle catene è vuota.");
                 return new List<IDom>(_catene);  
             default: 
                 throw new ArgumentException("l'enumerativo passato non è valido.");
