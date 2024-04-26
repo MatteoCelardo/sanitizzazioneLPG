@@ -17,18 +17,20 @@
         <!-- stile dei bottoni -->
         
         <Style Selector="Button">
-            <Setter Property="Background" Value="#AEBBB7"/>
+            <Setter Property="Background" Value="#8FA89E"/>
+            <Setter Property="Foreground" Value="#000000"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
-            <Setter Property="Margin" Value="10"/>
+            
         </Style>
 
         <Style Selector="Button:disabled /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="#8FA89E"/>
+            <Setter Property="Foreground" Value="#DDE1CD"/>
+            <Setter Property="Background" Value="#C5CDC4"/>
         </Style>
 
         <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="#C5CDC4"/>
+            <Setter Property="Background" Value="#AEBBB7"/>
         </Style>
 
         <!-- ***************** -->
@@ -50,6 +52,13 @@
         <Style Selector="StackPanel">
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Spacing" Value="10" />
         </Style>
         <!-- *********************** -->
+
+        <!-- stile dei TextBlock -->
+        <Style Selector="TextBlock">
+            <Setter Property="Foreground" Value="#000000"/>
+        </Style>
+        <!-- ******************* -->
 </Styles>
