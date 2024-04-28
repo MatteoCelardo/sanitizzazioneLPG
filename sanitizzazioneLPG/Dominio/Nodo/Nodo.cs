@@ -3,8 +3,8 @@
 public class Nodo : IDom
 {
     private string? _idCat;
-    private IdNodo_? _idNodo;
-    private bool? _nodoSens;
+    private IdNodo_ _idNodo;
+    private bool _nodoSens;
     private DaSanitizzareNodo_? _daSanitizzare;
 
     public Nodo(string idCat, IdNodo_ idNodo, bool nodoSens, DaSanitizzareNodo_ daSanitizzare)
