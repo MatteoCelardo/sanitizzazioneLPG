@@ -27,8 +27,8 @@ public class Nodo : IDom
     }
 
     public string? IdCat { get => _idCat; set => _idCat = value; }
-    public IdNodo_? IdNodo { get => _idNodo; set => _idNodo = value; }
-    public bool? NodoSens {  get => _nodoSens; set => _nodoSens = value; }
+    public IdNodo_ IdNodo { get => _idNodo; set => _idNodo = value; }
+    public bool NodoSens {  get => _nodoSens; set => _nodoSens = value; }
     public DaSanitizzareNodo_? DaSanitizzare { get => _daSanitizzare; set => _daSanitizzare = value; }
 
 }
