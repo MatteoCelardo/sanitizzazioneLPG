@@ -141,7 +141,8 @@
 					}
 				}
 
-			}
+			},
+			"minItems" : 1
 		},
 
 		"RelSensibili": {
@@ -265,7 +266,8 @@
 						"not": { "required": [ "DaSanitizzare" ] }
 					}
 				}
-			}
+			},
+			"minItems" : 1
 		},
 		"Catene": {
 			"type": "array",
