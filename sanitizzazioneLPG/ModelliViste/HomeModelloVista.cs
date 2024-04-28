@@ -28,6 +28,12 @@ public partial class HomeModelloVista : ObservableObject
     [ObservableProperty]
     private string? _codiceJson;
 
+    // attributo per specificare al file picker che deve prendere JSON
+    private static FilePickerFileType _json { get; } = new("File JSON")
+    {
+        Patterns = new[] { "*.json", "*.JSON", "*.Json" },
+    };
+
     public HomeModelloVista(IServizio s) 
     {
         _s = s; 
@@ -52,7 +58,7 @@ public partial class HomeModelloVista : ObservableObject
         {
             Title = "Selezione file JSON",
             AllowMultiple = false,
-            FileTypeFilter = new[] { Json }
+            FileTypeFilter = new[] { _json }
         });
 
         // i dati della view vengono aggiornati solo se l'importazione va a buon fine  
@@ -65,12 +71,6 @@ public partial class HomeModelloVista : ObservableObject
             CodiceJson = streamReader.ReadToEnd();
         }
     }
-
-    // funzione per specificare al file picker che deve prendere JSON
-    private static FilePickerFileType Json { get; } = new("File JSON")
-    {
-        Patterns = new[] { "*.json", "*.JSON", "*.Json" },
-    };
 
     // CanExecute permette di specificare la funzione che determina se la funzione 
     // sia eseguibile o meno
