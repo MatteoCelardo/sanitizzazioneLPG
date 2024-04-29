@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using DynamicData;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
@@ -10,6 +12,7 @@ using Neo4jClient.Cypher;
 using Newtonsoft.Json.Schema;
 using sanitizzazioneLPG.Dominio;
 using sanitizzazioneLPG.Persistenza;
+using sanitizzazioneLPG.Sanitizzazione;
 
 namespace sanitizzazioneLPG.Servizio;
 
@@ -128,9 +131,14 @@ public class Gestore : IServizio
     }
 
 
-    private Task SanitizzaRel(BoltGraphClient bgc, List<IDom> lr)
+    private void SanitizzaRel(BoltGraphClient bgc, List<IDom> lr)
     {
+        
         ICypherFluentQuery query;
+        IList<string> chiavi;
+        // flag usato per sapere se il primo elemento di propNum e propStr sia stato 
+        // inserito a parte o meno. flag = 0 se non inserito a parte, 1 altrimenti
+        int flag = 0; 
         
         foreach(Relazione r in lr)
         {
@@ -140,16 +148,33 @@ public class Gestore : IServizio
                 .WithParam("etichetta",r.IdRel?.Etichetta);
 
             // aggiunta dei parametri in propNum
-            foreach(string k in r.IdRel.PropNum.Keys)
+
+            chiavi = r.IdRel.PropNum.Keys.ToList();
+
+            // se non è stata inserita l'etichetta, bisogna ancora inserire il where 
+            // nella query
+            if(!query.Query.QueryText.Contains("WHERE"))
             {
-                query = query.AndWhere("$key = $value").WithParams(new{key = k, value = r.IdRel.PropNum[k]});
+                query = query.Where("$keyPN0 = $valuePN0").WithParams(new {keyPN0 = chiavi[0], valuePN0 = r.IdRel?.PropNum[chiavi[0]]});
+                flag++;
             }
 
-            // aggiunta dei parametri in propStr
-            foreach(string k in r.IdRel.PropStr.Keys)
+            // tramite il flag, so se includere o meno il primo elemento nel ciclo
+            for(int i = 0 + flag; i < chiavi.Count; i++)
+               query = query.AndWhere($"$keyPN{i} = $valuePN{i}").WithParam($"keyPN{i}", chiavi[i]).WithParam($"valuePN{i}", r.IdRel?.PropNum[chiavi[i]]);
+
+            // aggiunta dei parametri in propStr. analogo a PropNum
+
+            chiavi = r.IdRel.PropStr.Keys.ToList();
+            flag = 0;
+            if(!query.Query.QueryText.Contains("WHERE"))
             {
-                query = query.AndWhere("$key = $value").WithParams(new{key = k, value = r.IdRel.PropStr[k]});
+                query = query.Where("$keyPS0 = $valuePS0").WithParams(new {keyPS0 = chiavi[0], valuePS0 = r.IdRel?.PropStr[chiavi[0]]});
+                flag++;
             }
+            for(int i = 0 + flag; i <  chiavi.Count; i ++)
+                query = query.AndWhere($"$keyPS{i} = $valuePS{i}").WithParam($"keyPS{i}", chiavi[i]).WithParam($"valuePS{i}", r.IdRel?.PropStr[chiavi[i]]);
+
 
 
             if(r.RelSens)
@@ -157,50 +182,64 @@ public class Gestore : IServizio
             else 
             {
                 // relazione sensibile solo in parte
-                query.se
+
+                /*
+                    etichette (per i nodi) e prop sempre sens vanno messe sempre a null. 
+                    teoricamente posso metterle direttamente senza errori
+
+                    quelle in prop sens: provare con un case
+                */
+                
             }
 
             query.ExecuteWithoutResultsAsync();
         }
+        
 
+        
         /*
+        //AppDomainUnloadedException: i have a list of strings, each of those needs to be put in a remove clause. the problem is that the list length is variable. how can i create a neo4jclient query to accomplish this task? 
+        
         var stringsToRemove = new List<string> { "string1", "string2", "string3" };
 
-        var query = client.Cypher
-            .Match("(n:Node)")
-            .ForEach("(string IN $stringsToRemove | SET n.property = REPLACE(n.property, string, ''))")
-            .WithParam("stringsToRemove", stringsToRemove);
-        
-        query.ExecuteWithoutResults();
-        */
+        List<string> propertiesToRemove = new List<string> { "name", "casa", "property3" };
 
-        /*bgc.Cypher
+        string str = ""; 
+
+        for(int i = 0; i < propertiesToRemove.Count; i++)
+            str += $"n.$p{i} ";
+        query = bgc.Cypher
+            .Match("(n)")
+            .Remove(str);
+
+        for(int i = 0; i < propertiesToRemove.Count; i++)
+            query = query.WithParam($"p{i}",propertiesToRemove[i]);
+
+        Console.WriteLine(query.Query.QueryText);
+        foreach(object o in query.Query.QueryParameters)
+            Console.WriteLine(o.ToString());
+
+        query.ExecuteWithoutResultsAsync();
+        */
+        
+        /*
+        bgc.Cypher
             .Create("(:User {name:'temp'}), (:User {name:'wer', casa:'dasdioa'})")
             .ExecuteWithoutResultsAsync();
 
-        var query = bgc.Cypher
+        query = bgc.Cypher
                     .Match("(u)");
-        query = query.Where("$etichetta in labels(u)").WithParam("etichetta","User");
-        query = query.AndWhere("u.name = 'wer'");
+        query = query.Where("$etichetta in labels(u) AND u.name = 'wer'").WithParam("etichetta","User");
+        query = query.Delete("u");
 
-        query.Delete("u").ExecuteWithoutResultsAsync();   
-        return Task.Delay(2);     
+        Console.WriteLine(query.Query.QueryText);
+        Console.WriteLine(query.Query.DebugQueryText);
         
-        
-        await client.Cypher
-                    .Create("(:User {name:'temp'}), (:User {name:'wer', casa:'dasdioa'})")
-                    .ExecuteWithoutResultsAsync();
-
-        await client.Cypher
-                    .Match("(u:User)")
-                    .Where("u.name = 'wer'")
-                    .Delete("u")
-                    .ExecuteWithoutResultsAsync();*/
+        query.ExecuteWithoutResultsAsync();   */
     }
 
-    private Task SanitizzaNodi(BoltGraphClient bgc, List<IDom> ln)
+    private void SanitizzaNodi(BoltGraphClient bgc, List<IDom> ln)
     {
-        return Task.Delay(1);
         /*
         bgc.Cypher
             .Create("(:User {name:'nod1'})")
@@ -211,15 +250,14 @@ public class Gestore : IServizio
         bgc.Cypher
             .Create("(:User {name:'nod3'})")
             .ExecuteWithoutResultsAsync();
-        return bgc.Cypher
+        bgc.Cypher
             .Create("(:User {name:'nod4'})")
             .ExecuteWithoutResultsAsync();
             */
     }
 
-    private Task SanitizzaCat(BoltGraphClient bgc, List<IDom> lc)
+    private void SanitizzaCat(BoltGraphClient bgc, List<IDom> lc)
     {
-        return Task.Delay(1);
         /*
         bgc.Cypher
             .Create("(:User {name:'cat1'})")
@@ -230,9 +268,31 @@ public class Gestore : IServizio
         bgc.Cypher
             .Create("(:User {name:'cat3'})")
             .ExecuteWithoutResultsAsync();
-        return bgc.Cypher
+        bgc.Cypher
             .Create("(:User {name:'cat4'})")
             .ExecuteWithoutResultsAsync();
             */
+    }
+
+    /// <summary>
+    /// richiama il metodo SanitizzaNodo dell'interfaccia ISanit
+    /// </summary>
+    /// <typeparam name="T">classe concreta che implementa l'interfaccia</typeparam>
+    /// <param name="dsn">oggetto da sanitizzare</param>
+    /// <returns>oggetto sanitizzato</returns>
+    private DaSanitizzareNodo_ SanitNodo<T>(DaSanitizzareNodo_ dsn) where T : ISanit
+    {
+        return T.SanitizzaNodo(dsn);
+    }
+
+    /// <summary>
+    /// richiama il metodo SanitizzaRel dell'interfaccia ISanit
+    /// </summary>
+    /// <typeparam name="T">classe concreta che implementa l'interfaccia</typeparam>
+    /// <param name="dsn">oggetto da sanitizzare</param>
+    /// <returns>oggetto sanitizzato</returns>
+    private DaSanitizzareRel_ SanitRel<T>(DaSanitizzareRel_ dsr) where T : ISanit
+    {
+        return T.SanitizzaRel(dsr);
     }
 }
