@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
-using DynamicData;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
 using Neo4jClient;
@@ -139,41 +135,41 @@ public class Gestore : IServizio
         // flag usato per sapere se il primo elemento di propNum e propStr sia stato 
         // inserito a parte o meno. flag = 0 se non inserito a parte, 1 altrimenti
         int flag = 0; 
+        IdRel_ idr;
         
         foreach(Relazione r in lr)
         {
+            idr = r.IdRel;
             query = bgc.Cypher
-                .Match("(r)")
-                .WhereIf(!string.IsNullOrEmpty(r.IdRel.Etichetta),"$etichetta in labels(r)")
-                .WithParam("etichetta",r.IdRel?.Etichetta);
-
+                .Match("()-[r]->()")
+                .WhereIf(!string.IsNullOrEmpty(idr.Etichetta),"$etichetta in labels(r)")
+                .WithParam("etichetta",idr.Etichetta);
             // aggiunta dei parametri in propNum
 
-            chiavi = r.IdRel.PropNum.Keys.ToList();
+            chiavi = idr.PropNum.Keys.ToList();
 
             // se non è stata inserita l'etichetta, bisogna ancora inserire il where 
             // nella query
             if(!query.Query.QueryText.Contains("WHERE"))
             {
-                query = query.Where("$keyPN0 = $valuePN0").WithParams(new {keyPN0 = chiavi[0], valuePN0 = r.IdRel?.PropNum[chiavi[0]]});
+                query = query.Where("$keyPN0 = $valuePN0").WithParams(new {keyPN0 = chiavi[0], valuePN0 = idr.PropNum[chiavi[0]]});
                 flag++;
             }
-
             // tramite il flag, so se includere o meno il primo elemento nel ciclo
             for(int i = 0 + flag; i < chiavi.Count; i++)
-               query = query.AndWhere($"$keyPN{i} = $valuePN{i}").WithParam($"keyPN{i}", chiavi[i]).WithParam($"valuePN{i}", r.IdRel?.PropNum[chiavi[i]]);
+               query = query.AndWhere(string.Concat(["$keyPN",i," = $valuePN",i])).WithParam(string.Concat(["keyPN",i]), chiavi[i]).WithParam(string.Concat(["valuePN",i]), idr.PropNum[chiavi[i]]);
 
             // aggiunta dei parametri in propStr. analogo a PropNum
 
-            chiavi = r.IdRel.PropStr.Keys.ToList();
+            chiavi = idr.PropStr.Keys.ToList();
             flag = 0;
             if(!query.Query.QueryText.Contains("WHERE"))
             {
-                query = query.Where("$keyPS0 = $valuePS0").WithParams(new {keyPS0 = chiavi[0], valuePS0 = r.IdRel?.PropStr[chiavi[0]]});
+                query = query.Where("$keyPS0 = $valuePS0").WithParams(new {keyPS0 = chiavi[0], valuePS0 = idr.PropStr[chiavi[0]]});
                 flag++;
             }
             for(int i = 0 + flag; i <  chiavi.Count; i ++)
-                query = query.AndWhere($"$keyPS{i} = $valuePS{i}").WithParam($"keyPS{i}", chiavi[i]).WithParam($"valuePS{i}", r.IdRel?.PropStr[chiavi[i]]);
+                query = query.AndWhere(string.Concat(["$keyPS",i," = $valuePS",i])).WithParam(string.Concat(["keyPS",i]), chiavi[i]).WithParam(string.Concat(["valuePS",i]), idr.PropStr[chiavi[i]]);
 
 
 
@@ -183,77 +179,104 @@ public class Gestore : IServizio
             {
                 // relazione sensibile solo in parte
 
-                /*
-                    etichette (per i nodi) e prop sempre sens vanno messe sempre a null. 
-                    teoricamente posso metterle direttamente senza errori
+                r.DaSanitizzare = this.SanitRel<Sanitizzatore>(r.DaSanitizzare);
 
-                    quelle in prop sens: provare con un case
-                */
+                // rimozione di tutte le proprietà sempre sensibili
+                foreach(string s in r.DaSanitizzare.PropSempreSens)
+                    query = query.Remove(string.Concat(["r.",s]));
                 
+                foreach(string p in r.DaSanitizzare.PropSensAssoc.Keys)
+                    if(r.DaSanitizzare.PropSensAssoc[p].SanitizzareProp)
+                        // se sanitizzare prop è a true, sanitizzo la proprietà in p, 
+                        // ovvero quella che è resa sensibile dal vettore di proprietà 
+                        // associate
+                        query = query.Remove(string.Concat(["r.",p]));
+                    else 
+                        // in caso contrario, sanitizzo tutte le proprietà associate
+                        foreach (string pAssoc in r.DaSanitizzare.PropSensAssoc[p].PropAssoc)
+                            query = query.Remove(string.Concat(["r.",pAssoc]));
             }
 
             query.ExecuteWithoutResultsAsync();
         }
         
-
-        
-        /*
-        //AppDomainUnloadedException: i have a list of strings, each of those needs to be put in a remove clause. the problem is that the list length is variable. how can i create a neo4jclient query to accomplish this task? 
-        
-        var stringsToRemove = new List<string> { "string1", "string2", "string3" };
-
-        List<string> propertiesToRemove = new List<string> { "name", "casa", "property3" };
-
-        string str = ""; 
-
-        for(int i = 0; i < propertiesToRemove.Count; i++)
-            str += $"n.$p{i} ";
-        query = bgc.Cypher
-            .Match("(n)")
-            .Remove(str);
-
-        for(int i = 0; i < propertiesToRemove.Count; i++)
-            query = query.WithParam($"p{i}",propertiesToRemove[i]);
-
-        Console.WriteLine(query.Query.QueryText);
-        foreach(object o in query.Query.QueryParameters)
-            Console.WriteLine(o.ToString());
-
-        query.ExecuteWithoutResultsAsync();
-        */
-        
-        /*
-        bgc.Cypher
-            .Create("(:User {name:'temp'}), (:User {name:'wer', casa:'dasdioa'})")
-            .ExecuteWithoutResultsAsync();
-
-        query = bgc.Cypher
-                    .Match("(u)");
-        query = query.Where("$etichetta in labels(u) AND u.name = 'wer'").WithParam("etichetta","User");
-        query = query.Delete("u");
-
-        Console.WriteLine(query.Query.QueryText);
-        Console.WriteLine(query.Query.DebugQueryText);
-        
-        query.ExecuteWithoutResultsAsync();   */
     }
 
     private void SanitizzaNodi(BoltGraphClient bgc, List<IDom> ln)
     {
-        /*
-        bgc.Cypher
-            .Create("(:User {name:'nod1'})")
-            .ExecuteWithoutResultsAsync();
-        bgc.Cypher
-            .Create("(:User {name:'nod2'})")
-            .ExecuteWithoutResultsAsync();
-        bgc.Cypher
-            .Create("(:User {name:'nod3'})")
-            .ExecuteWithoutResultsAsync();
-        bgc.Cypher
-            .Create("(:User {name:'nod4'})")
-            .ExecuteWithoutResultsAsync();
-            */
+        ICypherFluentQuery query;
+        IList<string> chiavi;
+        // flag usato per sapere se il primo elemento di propNum e propStr sia stato 
+        // inserito a parte o meno. flag = 0 se non inserito a parte, 1 altrimenti
+        int flag = 0; 
+        IdNodo_ idn;
+        
+        foreach(Nodo n in ln)
+        {
+            idn = n.IdNodo;
+            query = bgc.Cypher
+                .Match("(n)")
+                .WhereIf(idn.Etichette.Length > 0,"ALL(etic IN $etichette WHERE etic IN labels(n))")
+                .WithParam("etichette",idn.Etichette);
+            // aggiunta dei parametri in propNum
+
+            chiavi = idn.PropNum.Keys.ToList();
+
+            // se non è stata inserita l'etichetta, bisogna ancora inserire il where 
+            // nella query
+            if(!query.Query.QueryText.Contains("WHERE"))
+            {
+                query = query.Where("$keyPN0 = $valuePN0").WithParams(new {keyPN0 = chiavi[0], valuePN0 = idn.PropNum[chiavi[0]]});
+                flag++;
+            }
+            // tramite il flag, so se includere o meno il primo elemento nel ciclo
+            for(int i = 0 + flag; i < chiavi.Count; i++)
+               query = query.AndWhere(string.Concat(["$keyPN",i," = $valuePN",i])).WithParam(string.Concat(["keyPN",i]), chiavi[i]).WithParam(string.Concat(["valuePN",i]), idn.PropNum[chiavi[i]]);
+
+            // aggiunta dei parametri in propStr. analogo a PropNum
+
+            chiavi = idn.PropStr.Keys.ToList();
+            flag = 0;
+            if(!query.Query.QueryText.Contains("WHERE"))
+            {
+                query = query.Where("$keyPS0 = $valuePS0").WithParams(new {keyPS0 = chiavi[0], valuePS0 = idn.PropStr[chiavi[0]]});
+                flag++;
+            }
+            for(int i = 0 + flag; i <  chiavi.Count; i ++)
+                query = query.AndWhere(string.Concat(["$keyPS",i," = $valuePS",i])).WithParam(string.Concat(["keyPS",i]), chiavi[i]).WithParam(string.Concat(["valuePS",i]), idn.PropStr[chiavi[i]]);
+
+
+
+            if(n.NodoSens)
+                query = query.Delete("n");  // nodo interamente sensibile
+            else 
+            {
+                // nodo sensibile solo in parte
+
+                n.DaSanitizzare = this.SanitNodo<Sanitizzatore>(n.DaSanitizzare);
+
+                // rimozione di tutte le etichette sempre sensibili 
+                foreach(string s in n.DaSanitizzare.PropSempreSens)
+                    query = query.Call
+
+                // rimozione di tutte le proprietà sempre sensibili 
+                foreach(string s in n.DaSanitizzare.PropSempreSens)
+                    query = query.Remove(string.Concat(["n.",s]));
+                
+                foreach(string p in n.DaSanitizzare.PropSensAssoc.Keys)
+                    if(n.DaSanitizzare.PropSensAssoc[p].SanitizzareProp)
+                        // se sanitizzare prop è a true, sanitizzo la proprietà in p, 
+                        // ovvero quella che è resa sensibile dal vettore di proprietà 
+                        // associate
+                        query = query.Remove(string.Concat(["n.",p]));
+                    else 
+                        // in caso contrario, sanitizzo tutte le proprietà associate
+                        foreach (string pAssoc in n.DaSanitizzare.PropSensAssoc[p].PropAssoc)
+                            query = query.Remove(string.Concat(["n.",pAssoc]));
+            }
+
+            query.ExecuteWithoutResultsAsync();
+        }
     }
 
     private void SanitizzaCat(BoltGraphClient bgc, List<IDom> lc)
