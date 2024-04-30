@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using MsBox.Avalonia;
@@ -109,7 +110,7 @@ public class Gestore : IServizio
         {
             ret = $"Il file al percorso {path} non rispetta lo schema predefinito.\n Errori: \n";
             foreach(ValidationError e in err)
-                string.Concat([ret, "\t- Linea numero: ", e.LineNumber, " - Percorso: ", e.Path, " - Valore: ", e.Value,"\n\t\tErrore: ", e.Message, "\n----\n"]);
+                ret += "\t- Linea numero: " + e.LineNumber + " - Percorso: " +  e.Path +  " - Valore: " +  e.Value + "\n\t\tErrore: " +  e.Message +  "\n----\n";
         }
         return ret;
     }
@@ -143,17 +144,13 @@ public class Gestore : IServizio
                 .WhereIf(!string.IsNullOrEmpty(idr.Etichetta),"$etichetta in labels(r)")
                 .WithParam("etichetta",idr.Etichetta);
             
-            query = CreaWhereProp(query, idr.PropStr, idr.PropNum);
+            query = this.CreaWhereProp(query, idr.PropStr, idr.PropNum,"r");
 
             if(r.RelSens)
                 query = query.Delete("r");  // relazione interamente sensibile
             else 
-            {
                 // relazione sensibile solo in parte
-
-                r.DaSanitizzare = this.SanitRel<Sanitizzatore>(r.DaSanitizzare);
-                query = CreaRemovePropSens(query, r.DaSanitizzare.PropSempreSens, r.DaSanitizzare.PropSensAssoc);
-            }
+                query = this.CreaRemovePropSens(query, r.DaSanitizzare.PropSempreSens, r.DaSanitizzare.PropSensAssoc,"r");
 
             query.ExecuteWithoutResultsAsync();
         }
@@ -173,22 +170,20 @@ public class Gestore : IServizio
                 .WhereIf(idn.Etichette.Length > 0,"ALL(etic IN $etichette WHERE etic IN labels(n))")
                 .WithParam("etichette",idn.Etichette);
 
-            query = CreaWhereProp(query, idn.PropStr, idn.PropNum);
+            query = this.CreaWhereProp(query, idn.PropStr, idn.PropNum, "n");
 
 
             if(n.NodoSens)
-                query = query.Delete("n");  // nodo interamente sensibile
+                query = query.DetachDelete("n");  // nodo interamente sensibile
             else 
             {
                 // nodo sensibile solo in parte
 
-                n.DaSanitizzare = this.SanitNodo<Sanitizzatore>(n.DaSanitizzare);
-
                 // rimozione di tutte le etichette sempre sensibili 
                 foreach(string e in n.DaSanitizzare.EtichetteSens)
-                    query = query.Remove(string.Concat(["n:",e]));
+                    query = query.Remove("n:" + e);
 
-                query = CreaRemovePropSens(query, n.DaSanitizzare.PropSempreSens,n.DaSanitizzare.PropSensAssoc);
+                query = this.CreaRemovePropSens(query, n.DaSanitizzare.PropSempreSens,n.DaSanitizzare.PropSensAssoc,"n");
             }
 
             query.ExecuteWithoutResultsAsync();
@@ -197,20 +192,132 @@ public class Gestore : IServizio
 
     private void SanitizzaCat(BoltGraphClient bgc, List<IDom> lc)
     {
-        /*
-        bgc.Cypher
-            .Create("(:User {name:'cat1'})")
-            .ExecuteWithoutResultsAsync();
-        bgc.Cypher
-            .Create("(:User {name:'cat2'})")
-            .ExecuteWithoutResultsAsync();
-        bgc.Cypher
-            .Create("(:User {name:'cat3'})")
-            .ExecuteWithoutResultsAsync();
-        bgc.Cypher
-            .Create("(:User {name:'cat4'})")
-            .ExecuteWithoutResultsAsync();
-            */
+        ICypherFluentQuery query;
+        // sintrga con la clausola match
+        string match;
+        // stringa con la clausola where
+        string where;
+        // stringa con la clausola remove
+        string remove;
+        // stringa con la clausola delete
+        string delete;
+
+        // lista di stringe usata per contenere i valori delle etichette usate come 
+        // parametri per inserire il vettore di etichette di ciascun nodo.
+        // le etichette riferite ad altri campi stringa sono salvate in parEticStr
+        List<string> parNodi = new List<string>();
+        // lista parallela a parNodi che conteiene tutti i vettori di etichette di 
+        // ciascun nodo
+        List<string[]> parValNodi = new List<string[]>();
+
+        // lista che contiene i valori delle etichette usate come parametri che 
+        // verranno sostituiti da stringhe
+        List<string> parEticStr = new List<string>();
+        // lista parallela a parEticStr con le stringhe relative alle etichette
+        List<string> parValStr = new List<string>();
+
+        // coppia di liste analoghe a parEticStr e parValStr per i valori numerici
+        List<string> parEticNum = new List<string>();
+        List<double> parValNum = new List<double>();
+
+        Relazione r;
+        Nodo n;
+        Catena c;
+        
+
+        if(lc.Count > 0 )
+        {
+            for(int j = 0; j < lc.Count; j++)
+            {
+                c = (Catena) lc[j];
+                where = "";
+                remove = "";
+                delete = "";
+                match = "(";
+
+                for(int i = 0; i < c.Els.Count; i++)
+                {
+                    if(c.Els[i].GetType() == typeof(Relazione))
+                    {
+                        r = (Relazione)c.Els[i];
+                        match += ")-[r" + j + i + "]->(";
+
+                        if(!string.IsNullOrEmpty(r.IdRel.Etichetta))
+                        {
+                            if(string.IsNullOrEmpty(where))
+                                where = "$etichetta" + j + i + " in labels(r"+ j + i + ")";
+                            else 
+                                where += " AND $etichetta" + j + i + " in labels(r"+ j + i + ")";
+                            parEticStr.Add("etichetta" + j + i);
+                            parValStr.Add(r.IdRel.Etichetta);
+                        }
+
+                        this.CreaWherePropCatena(ref where, r.IdRel.PropStr, r.IdRel.PropNum, ref parEticStr, ref parValStr, ref parEticNum, ref parValNum,"r"+j+i);
+
+                        if(r.RelSens)
+                            delete += "r" + j + i + ", ";
+                        else if(r.DaSanitizzare != null)
+                            remove += this.CreaRemovePropSensCatena(r.DaSanitizzare.PropSempreSens, r.DaSanitizzare.PropSensAssoc,"r"+j+i);
+                    }
+                    else 
+                    {
+                        n = (Nodo)c.Els[i];
+                        match += "n" + j + i;
+
+                        if(n.IdNodo.Etichette.Length > 0)
+                        {
+                            if(string.IsNullOrEmpty(where))
+                                where = "ALL(etic IN $etichette" + j+ i + " WHERE etic IN labels(n" + j + i +"))";
+                            else 
+                                where += " AND ALL(etic IN $etichette" + j +  i + " WHERE etic IN labels(n" + j + i +"))";
+                            parNodi.Add("etichette" + j + i);
+                            parValNodi.Add(n.IdNodo.Etichette);
+                        }
+
+                        this.CreaWherePropCatena(ref where, n.IdNodo.PropStr, n.IdNodo.PropNum, ref parEticStr, ref parValStr, ref parEticNum, ref parValNum,"n"+j+i);
+
+                        if(n.NodoSens)
+                            delete += "n" + j + i + ", ";
+                        else if(n.DaSanitizzare != null)
+                        {
+                            // rimozione di tutte le etichette sempre sensibili 
+                            foreach(string e in n.DaSanitizzare.EtichetteSens)
+                                remove += "n" + j + i + ":" + e + ", ";
+                            remove += this.CreaRemovePropSensCatena(n.DaSanitizzare.PropSempreSens, n.DaSanitizzare.PropSensAssoc,"n"+j+i);
+                        }
+                    }
+
+                }
+
+                match += ")";
+
+                query = bgc.Cypher
+                    .Match(match)
+                    .Where(where);
+
+                if(!string.IsNullOrEmpty(delete))    
+                    // rimuovo la virgola infondo alla stringa delete
+                    query = query.DetachDelete(delete.Remove(delete.Length - 2));
+
+                if(!string.IsNullOrEmpty(remove))
+                    // rimuovo la virgola infondo alla stringa remove
+                    query = query.Remove(remove.Remove(remove.Length-2));
+
+                // inserimento dei parametri usati per le etichette dei nodi 
+                for(int i = 0; i < parNodi.Count; i++)
+                    query = query.WithParam(parNodi[i],parValNodi[i]); 
+
+                // inserimento dei parametri di tipo stringa
+                for(int i = 0; i < parEticStr.Count; i++)
+                    query = query.WithParam(parEticStr[i],parValStr[i]); 
+
+                // inserimento dei parametri numerici
+                for(int i = 0; i < parEticNum.Count; i++)
+                    query = query.WithParam(parEticNum[i],parValNum[i]); 
+
+                query.ExecuteWithoutResultsAsync();
+            }
+        }
     }
 
     #endregion
@@ -223,11 +330,12 @@ public class Gestore : IServizio
     /// <param name="query">parte di query già composta in precedenza</param>
     /// <param name="propStr">proprietà PropStr di <c>IdRel</c> o <c>IdNodo</c></param>
     /// <param name="propNum">proprietà PropNum di <c>IdRel</c> o <c>IdNodo</c></param>
+    /// <param name="nomeElem">nome dato nella clausola match all'elemento di cui si vogliono rimuovere le informazioni sensibili</param>
     /// <returns>
-    /// ritorna la parte di query con le clausole da mettere nel where per rispettare
-    /// quanto specificato negli oggetti
+    /// ritorna la parte di query con le condizioni da mettere nel where per rispettare
+    /// quanto specificato specificato in <c>propStr</c> e in <c>propNum</c>
     /// </returns>
-    private ICypherFluentQuery CreaWhereProp(ICypherFluentQuery query, IDictionary<string,string> propStr, IDictionary<string,double> propNum)
+    private ICypherFluentQuery CreaWhereProp(ICypherFluentQuery query, IDictionary<string,string> propStr, IDictionary<string,double> propNum, string nomeElem)
     {
         IList<string> chiavi;
         // flag usato per sapere se il primo elemento di propNum e propStr sia stato 
@@ -242,12 +350,12 @@ public class Gestore : IServizio
         // nella query
         if(!query.Query.QueryText.Contains("WHERE"))
         {
-            query = query.Where("$keyPN0 = $valuePN0").WithParams(new {keyPN0 = chiavi[0], valuePN0 = propNum[chiavi[0]]});
+            query = query.Where(nomeElem + "." + chiavi[0] + " = $valuePN" + nomeElem + "0").WithParam("valuePN" + nomeElem + "0", propNum[chiavi[0]]);
             flag++;
         }
         // tramite il flag, so se includere o meno il primo elemento nel ciclo
         for(int i = 0 + flag; i < chiavi.Count; i++)
-           query = query.AndWhere(string.Concat(["$keyPN",i," = $valuePN",i])).WithParam(string.Concat(["keyPN",i]), chiavi[i]).WithParam(string.Concat(["valuePN",i]), propNum[chiavi[i]]);
+           query = query.AndWhere(nomeElem + "." + chiavi[i] + " = $valuePN" + nomeElem + i).WithParam("valuePN" + nomeElem + i, propNum[chiavi[i]]);
 
         // aggiunta dei parametri in propStr. analogo a PropNum
 
@@ -255,11 +363,11 @@ public class Gestore : IServizio
         flag = 0;
         if(!query.Query.QueryText.Contains("WHERE"))
         {
-            query = query.Where("$keyPS0 = $valuePS0").WithParams(new {keyPS0 = chiavi[0], valuePS0 = propStr[chiavi[0]]});
+            query = query.Where(nomeElem + "." + chiavi[0] + " = $valuePS"+ nomeElem + "0").WithParam("valuePS" + nomeElem +"0", propStr[chiavi[0]]);
             flag++;
         }
         for(int i = 0 + flag; i <  chiavi.Count; i ++)
-            query = query.AndWhere(string.Concat(["$keyPS",i," = $valuePS",i])).WithParam(string.Concat(["keyPS",i]), chiavi[i]).WithParam(string.Concat(["valuePS",i]), propStr[chiavi[i]]);
+            query = query.AndWhere(nomeElem + "." + chiavi[i] + " = $valuePS" + nomeElem + i).WithParam("valuePS" + nomeElem  + i, propStr[chiavi[i]]);
 
         return query;
     }
@@ -272,50 +380,125 @@ public class Gestore : IServizio
     /// <param name="query">parte di query già composta in precedenza</param>
     /// <param name="propSempreSens">proprietà <c>PropSempreSens</c> di <c>DaSanitizzareRel</c> o <c>DaSanitizzareNodo</c></param>
     /// <param name="propSensAssoc">proprietà <c>PropSensAssoc</c> di <c>DaSanitizzareRel</c> o <c>DaSanitizzareNodo</c></param>
-    private ICypherFluentQuery CreaRemovePropSens(ICypherFluentQuery query, string[] propSempreSens, IDictionary<string,PropSensAssoc_> propSensAssoc)
+    /// <param name="nomeElem">nome dato nella clausola match all'elemento di cui si vogliono rimuovere le informazioni sensibili</param>
+    /// <returns>
+    /// ritorna la parte di query con le condizioni da mettere nel remove per rispettare
+    /// quanto specificato specificato in <c>propSempreSens</c> e in <c>propSensAssoc</c>
+    /// </returns>
+    private ICypherFluentQuery CreaRemovePropSens(ICypherFluentQuery query, string[] propSempreSens, IDictionary<string,PropSensAssoc_> propSensAssoc, string nomeElem)
     {
         // rimozione di tutte le proprietà sempre sensibili
         foreach(string s in propSempreSens)
-            query = query.Remove(string.Concat(["r.",s]));
+            query = query.Remove(nomeElem + "." + s);
                 
         foreach(string p in propSensAssoc.Keys)
             if(propSensAssoc[p].SanitizzareProp)
                 // se sanitizzare prop è a true, sanitizzo la proprietà in p, 
                 // ovvero quella che è resa sensibile dal vettore di proprietà 
                 // associate
-                query = query.Remove(string.Concat(["r.",p]));
+                query = query.Remove(nomeElem + "." + p);
             else 
                 // in caso contrario, sanitizzo tutte le proprietà associate
                 foreach (string pAssoc in propSensAssoc[p].PropAssoc)
-                    query = query.Remove(string.Concat(["r.",pAssoc]));
+                    query = query.Remove(nomeElem + "." + pAssoc);
 
         return query;
     }
 
-    #endregion
-
-
-    #region funzioni di sanitizzazione dell'input
     /// <summary>
-    /// richiama il metodo SanitizzaNodo dell'interfaccia ISanit
+    /// crea la parte di query con la rimozione delle informazioni sensibili specificate
+    /// in <c>PropSempreSens</c> e <c>PropSensAssoc</c> all'interno degll' oggetto 
+    /// <c>DaSanitizzareRel</c> o <c>DaSanitizzareNodo</c> per gli elementi del 
+    /// dominio nelle catene.
+    /// il parametro formale <c>where</c> conterrà la stringa aggiornata con le condizioni 
+    /// specificare negli oggetti
     /// </summary>
-    /// <typeparam name="T">classe concreta che implementa l'interfaccia</typeparam>
-    /// <param name="dsn">oggetto da sanitizzare</param>
-    /// <returns>oggetto sanitizzato</returns>
-    private DaSanitizzareNodo_ SanitNodo<T>(DaSanitizzareNodo_ dsn) where T : ISanit
+    /// <param name="where">parte di clausola where già scritta</param>
+    /// <param name="propStr">proprietà PropStr di <c>IdRel</c> o <c>IdNodo</c></param>
+    /// <param name="propNum">proprietà PropNum di <c>IdRel</c> o <c>IdNodo</c></param>
+    /// <param name="parEticStr">lista usata per tenere traccia delle etichette usate come parametro</param>
+    /// <param name="parValStr">lista parallela a <c>parEticStr</c> per contenere i valori corrispondenti a ciascuna etichetta</param>
+    /// <param name="parEticNum">analogo di <c>parEticStr</c> per le etichette cui corrisponde un valore numerico</param>
+    /// <param name="parValNum">analogo di <c>parValStr</c> che contiene i valori numerici relativi a <c>parEticNum</c></param>
+    /// <param name="nomeElem">nome dato nella clausola match all'elemento di cui si vogliono rimuovere le informazioni sensibili</param>
+    private void CreaWherePropCatena(ref string where, IDictionary<string,string> propStr, IDictionary<string,double> propNum, ref List<string> parEticStr, ref List<string> parValStr, ref List<string> parEticNum, ref List<double> parValNum, string nomeElem)
     {
-        return T.SanitizzaNodo(dsn);
+        IList<string> chiavi = propNum.Keys.ToList();
+        // flag usato per sapere se il primo elemento di propNum e propStr sia stato 
+        // inserito a parte o meno. flag = 0 se non inserito a parte, 1 altrimenti
+        int flag = 0;
+        //inserimento degli elementi in propNum
+        if(string.IsNullOrEmpty(where))
+        {
+            where = nomeElem + "." + chiavi[0] + " = $valuePN" + nomeElem + "0";
+            parEticNum.Add("valuePN" + nomeElem + "0");
+            parValNum.Add(propNum[chiavi[0]]);
+            flag++;
+        }
+        // tramite il flag, so se includere o meno il primo elemento nel ciclo
+        for(int k = 0 + flag; k < chiavi.Count; k++)
+        {
+            where += " AND " + nomeElem + "." + chiavi[k] + " = $valuePN" + nomeElem + k;
+            parEticNum.Add("valuePN" + nomeElem + k);
+            parValNum.Add(propNum[chiavi[k]]);
+        }
+
+        chiavi = propStr.Keys.ToList();
+        flag = 0;
+    
+        //inserimento degli elementi in propstr
+        if(string.IsNullOrEmpty(where))
+        {
+            where = nomeElem + "." + chiavi[0] + " = $valuePS" + nomeElem + "0";
+            parEticStr.Add("valuePS" + nomeElem + "0");
+            parValStr.Add(propStr[chiavi[0]]);
+            flag++;
+        }
+        // tramite il flag, so se includere o meno il primo elemento nel ciclo
+        for(int k = 0 + flag; k < chiavi.Count; k++)
+        {
+            where +=  " AND " + nomeElem + "." + chiavi[k] + " = $valuePS" + nomeElem + k;
+            parEticStr.Add("valuePS" + nomeElem + k);
+            parValStr.Add(propStr[chiavi[k]]);
+        }
     }
 
+
     /// <summary>
-    /// richiama il metodo SanitizzaRel dell'interfaccia ISanit
+    /// crea la parte di query con la rimozione delle informazioni sensibili specificate
+    /// in <c>PropSempreSens</c> e <c>PropSensAssoc</c> all'interno degll' oggetto 
+    /// <c>DaSanitizzareRel</c> o <c>DaSanitizzareNodo</c> per gli elementi del 
+    /// dominio nelle catene
     /// </summary>
-    /// <typeparam name="T">classe concreta che implementa l'interfaccia</typeparam>
-    /// <param name="dsn">oggetto da sanitizzare</param>
-    /// <returns>oggetto sanitizzato</returns>
-    private DaSanitizzareRel_ SanitRel<T>(DaSanitizzareRel_ dsr) where T : ISanit
+    /// <param name="remove">parte di clausola remove già composta in precedenza</param>
+    /// <param name="propSempreSens">proprietà <c>PropSempreSens</c> di <c>DaSanitizzareRel</c> o <c>DaSanitizzareNodo</c></param>
+    /// <param name="propSensAssoc">proprietà <c>PropSensAssoc</c> di <c>DaSanitizzareRel</c> o <c>DaSanitizzareNodo</c></param>
+    /// <param name="nomeElem">nome dato nella clausola match all'elemento di cui si vogliono rimuovere le informazioni sensibili</param>
+    /// <returns>
+    /// ritorna la stringa <c>remove</c> aggioranta con le condizioni per rispettare
+    /// quanto specificato in <c>propSempreSens</c> e in <c>propSensAssoc</c>
+    /// </returns>
+    private string CreaRemovePropSensCatena(string[] propSempreSens, IDictionary<string,PropSensAssoc_> propSensAssoc, string nomeElem)
     {
-        return T.SanitizzaRel(dsr);
+        string remove = "";
+        
+        // rimozione di tutte le proprietà sempre sensibili
+        foreach(string s in propSempreSens)
+            remove += nomeElem + "." + s + ", ";
+                
+        foreach(string p in propSensAssoc.Keys)
+            if(propSensAssoc[p].SanitizzareProp)
+                // se sanitizzare prop è a true, sanitizzo la proprietà in p, 
+                // ovvero quella che è resa sensibile dal vettore di proprietà 
+                // associate
+                remove += nomeElem + "." + p + ", ";
+            else 
+                // in caso contrario, sanitizzo tutte le proprietà associate
+                foreach (string pAssoc in propSensAssoc[p].PropAssoc)
+                    remove += nomeElem + "." + pAssoc + ", ";
+
+        return remove;
     }
     #endregion
+
 }
