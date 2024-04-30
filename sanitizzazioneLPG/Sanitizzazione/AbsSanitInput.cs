@@ -5,23 +5,24 @@ using sanitizzazioneLPG.Dominio;
 
 namespace sanitizzazioneLPG.Sanitizzazione;
 
-public class Sanitizzatore : ISanit
+public abstract class AbsSanitInput
 {
     // lista dei caratteri speciali da sanitizzare
     private static readonly IList<string> carEsc = new ReadOnlyCollection<string>(
             new List<string>(["\'","\"","\\","/*","//"])
         );
-    // lista delle parole chiave da sanitizzare
-    private static readonly IList<string> parChiave = new ReadOnlyCollection<string>(
-            new List<string>(["RETURN", "AS", "LOAD", "OR", "AND", "CALL", "WITH"])
-        );
         
-    public static DaSanitizzareNodo_ SanitizzaNodo(DaSanitizzareNodo_ dsn)
+    public static List<Nodo> SanitizzaNodi(List<Nodo> nodi)
     {
         throw new NotImplementedException();
     }
 
-    public static DaSanitizzareRel_ SanitizzaRel(DaSanitizzareRel_ dsr)
+    public static List<Relazione> SanitizzaRelazioni(List<Relazione> relazioni)
+    {
+        throw new NotImplementedException();
+    }
+
+    public static List<Catena> SanitizzaCatene(List<Catena> catene)
     {
         throw new NotImplementedException();
     }
