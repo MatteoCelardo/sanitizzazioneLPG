@@ -109,7 +109,7 @@ public class Gestore : IServizio
         {
             ret = $"Il file al percorso {path} non rispetta lo schema predefinito.\n Errori: \n";
             foreach(ValidationError e in err)
-                ret += "\t- Linea numero: " + e.LineNumber + " - Percorso: " + e.Path + " - Valore: " + e.Value + "\n" + "\t\tErrore: " + e.Message + "\n----\n";
+                string.Concat([ret, "\t- Linea numero: ", e.LineNumber, " - Percorso: ", e.Path, " - Valore: ", e.Value,"\n\t\tErrore: ", e.Message, "\n----\n"]);
         }
         return ret;
     }
@@ -127,14 +127,12 @@ public class Gestore : IServizio
     }
 
 
+    #region task sanitizzazione LPG
     private void SanitizzaRel(BoltGraphClient bgc, List<IDom> lr)
     {
         
         ICypherFluentQuery query;
-        IList<string> chiavi;
-        // flag usato per sapere se il primo elemento di propNum e propStr sia stato 
-        // inserito a parte o meno. flag = 0 se non inserito a parte, 1 altrimenti
-        int flag = 0; 
+        
         IdRel_ idr;
         
         foreach(Relazione r in lr)
@@ -144,34 +142,8 @@ public class Gestore : IServizio
                 .Match("()-[r]->()")
                 .WhereIf(!string.IsNullOrEmpty(idr.Etichetta),"$etichetta in labels(r)")
                 .WithParam("etichetta",idr.Etichetta);
-            // aggiunta dei parametri in propNum
-
-            chiavi = idr.PropNum.Keys.ToList();
-
-            // se non è stata inserita l'etichetta, bisogna ancora inserire il where 
-            // nella query
-            if(!query.Query.QueryText.Contains("WHERE"))
-            {
-                query = query.Where("$keyPN0 = $valuePN0").WithParams(new {keyPN0 = chiavi[0], valuePN0 = idr.PropNum[chiavi[0]]});
-                flag++;
-            }
-            // tramite il flag, so se includere o meno il primo elemento nel ciclo
-            for(int i = 0 + flag; i < chiavi.Count; i++)
-               query = query.AndWhere(string.Concat(["$keyPN",i," = $valuePN",i])).WithParam(string.Concat(["keyPN",i]), chiavi[i]).WithParam(string.Concat(["valuePN",i]), idr.PropNum[chiavi[i]]);
-
-            // aggiunta dei parametri in propStr. analogo a PropNum
-
-            chiavi = idr.PropStr.Keys.ToList();
-            flag = 0;
-            if(!query.Query.QueryText.Contains("WHERE"))
-            {
-                query = query.Where("$keyPS0 = $valuePS0").WithParams(new {keyPS0 = chiavi[0], valuePS0 = idr.PropStr[chiavi[0]]});
-                flag++;
-            }
-            for(int i = 0 + flag; i <  chiavi.Count; i ++)
-                query = query.AndWhere(string.Concat(["$keyPS",i," = $valuePS",i])).WithParam(string.Concat(["keyPS",i]), chiavi[i]).WithParam(string.Concat(["valuePS",i]), idr.PropStr[chiavi[i]]);
-
-
+            
+            query = CreaWhereProp(query, idr.PropStr, idr.PropNum);
 
             if(r.RelSens)
                 query = query.Delete("r");  // relazione interamente sensibile
@@ -180,21 +152,7 @@ public class Gestore : IServizio
                 // relazione sensibile solo in parte
 
                 r.DaSanitizzare = this.SanitRel<Sanitizzatore>(r.DaSanitizzare);
-
-                // rimozione di tutte le proprietà sempre sensibili
-                foreach(string s in r.DaSanitizzare.PropSempreSens)
-                    query = query.Remove(string.Concat(["r.",s]));
-                
-                foreach(string p in r.DaSanitizzare.PropSensAssoc.Keys)
-                    if(r.DaSanitizzare.PropSensAssoc[p].SanitizzareProp)
-                        // se sanitizzare prop è a true, sanitizzo la proprietà in p, 
-                        // ovvero quella che è resa sensibile dal vettore di proprietà 
-                        // associate
-                        query = query.Remove(string.Concat(["r.",p]));
-                    else 
-                        // in caso contrario, sanitizzo tutte le proprietà associate
-                        foreach (string pAssoc in r.DaSanitizzare.PropSensAssoc[p].PropAssoc)
-                            query = query.Remove(string.Concat(["r.",pAssoc]));
+                query = CreaRemovePropSens(query, r.DaSanitizzare.PropSempreSens, r.DaSanitizzare.PropSensAssoc);
             }
 
             query.ExecuteWithoutResultsAsync();
@@ -205,10 +163,6 @@ public class Gestore : IServizio
     private void SanitizzaNodi(BoltGraphClient bgc, List<IDom> ln)
     {
         ICypherFluentQuery query;
-        IList<string> chiavi;
-        // flag usato per sapere se il primo elemento di propNum e propStr sia stato 
-        // inserito a parte o meno. flag = 0 se non inserito a parte, 1 altrimenti
-        int flag = 0; 
         IdNodo_ idn;
         
         foreach(Nodo n in ln)
@@ -218,33 +172,8 @@ public class Gestore : IServizio
                 .Match("(n)")
                 .WhereIf(idn.Etichette.Length > 0,"ALL(etic IN $etichette WHERE etic IN labels(n))")
                 .WithParam("etichette",idn.Etichette);
-            // aggiunta dei parametri in propNum
 
-            chiavi = idn.PropNum.Keys.ToList();
-
-            // se non è stata inserita l'etichetta, bisogna ancora inserire il where 
-            // nella query
-            if(!query.Query.QueryText.Contains("WHERE"))
-            {
-                query = query.Where("$keyPN0 = $valuePN0").WithParams(new {keyPN0 = chiavi[0], valuePN0 = idn.PropNum[chiavi[0]]});
-                flag++;
-            }
-            // tramite il flag, so se includere o meno il primo elemento nel ciclo
-            for(int i = 0 + flag; i < chiavi.Count; i++)
-               query = query.AndWhere(string.Concat(["$keyPN",i," = $valuePN",i])).WithParam(string.Concat(["keyPN",i]), chiavi[i]).WithParam(string.Concat(["valuePN",i]), idn.PropNum[chiavi[i]]);
-
-            // aggiunta dei parametri in propStr. analogo a PropNum
-
-            chiavi = idn.PropStr.Keys.ToList();
-            flag = 0;
-            if(!query.Query.QueryText.Contains("WHERE"))
-            {
-                query = query.Where("$keyPS0 = $valuePS0").WithParams(new {keyPS0 = chiavi[0], valuePS0 = idn.PropStr[chiavi[0]]});
-                flag++;
-            }
-            for(int i = 0 + flag; i <  chiavi.Count; i ++)
-                query = query.AndWhere(string.Concat(["$keyPS",i," = $valuePS",i])).WithParam(string.Concat(["keyPS",i]), chiavi[i]).WithParam(string.Concat(["valuePS",i]), idn.PropStr[chiavi[i]]);
-
+            query = CreaWhereProp(query, idn.PropStr, idn.PropNum);
 
 
             if(n.NodoSens)
@@ -256,23 +185,10 @@ public class Gestore : IServizio
                 n.DaSanitizzare = this.SanitNodo<Sanitizzatore>(n.DaSanitizzare);
 
                 // rimozione di tutte le etichette sempre sensibili 
-                foreach(string s in n.DaSanitizzare.PropSempreSens)
-                    query = query.Call
+                foreach(string e in n.DaSanitizzare.EtichetteSens)
+                    query = query.Remove(string.Concat(["n:",e]));
 
-                // rimozione di tutte le proprietà sempre sensibili 
-                foreach(string s in n.DaSanitizzare.PropSempreSens)
-                    query = query.Remove(string.Concat(["n.",s]));
-                
-                foreach(string p in n.DaSanitizzare.PropSensAssoc.Keys)
-                    if(n.DaSanitizzare.PropSensAssoc[p].SanitizzareProp)
-                        // se sanitizzare prop è a true, sanitizzo la proprietà in p, 
-                        // ovvero quella che è resa sensibile dal vettore di proprietà 
-                        // associate
-                        query = query.Remove(string.Concat(["n.",p]));
-                    else 
-                        // in caso contrario, sanitizzo tutte le proprietà associate
-                        foreach (string pAssoc in n.DaSanitizzare.PropSensAssoc[p].PropAssoc)
-                            query = query.Remove(string.Concat(["n.",pAssoc]));
+                query = CreaRemovePropSens(query, n.DaSanitizzare.PropSempreSens,n.DaSanitizzare.PropSensAssoc);
             }
 
             query.ExecuteWithoutResultsAsync();
@@ -297,6 +213,89 @@ public class Gestore : IServizio
             */
     }
 
+    #endregion
+
+    #region funzioni di appoggio ai task di sanitizzazione
+    /// <summary>
+    /// crea la parte di clausola where riguardante <c>propStr</c> e <c>propNum</c> 
+    /// appartenenti a <c>IdRel</c> o <c>IdNodo</c>
+    /// </summary>
+    /// <param name="query">parte di query già composta in precedenza</param>
+    /// <param name="propStr">proprietà PropStr di <c>IdRel</c> o <c>IdNodo</c></param>
+    /// <param name="propNum">proprietà PropNum di <c>IdRel</c> o <c>IdNodo</c></param>
+    /// <returns>
+    /// ritorna la parte di query con le clausole da mettere nel where per rispettare
+    /// quanto specificato negli oggetti
+    /// </returns>
+    private ICypherFluentQuery CreaWhereProp(ICypherFluentQuery query, IDictionary<string,string> propStr, IDictionary<string,double> propNum)
+    {
+        IList<string> chiavi;
+        // flag usato per sapere se il primo elemento di propNum e propStr sia stato 
+        // inserito a parte o meno. flag = 0 se non inserito a parte, 1 altrimenti
+        int flag = 0; 
+
+        // aggiunta dei parametri in propNum
+
+        chiavi = propNum.Keys.ToList();
+
+        // se non è stata inserita l'etichetta, bisogna ancora inserire il where 
+        // nella query
+        if(!query.Query.QueryText.Contains("WHERE"))
+        {
+            query = query.Where("$keyPN0 = $valuePN0").WithParams(new {keyPN0 = chiavi[0], valuePN0 = propNum[chiavi[0]]});
+            flag++;
+        }
+        // tramite il flag, so se includere o meno il primo elemento nel ciclo
+        for(int i = 0 + flag; i < chiavi.Count; i++)
+           query = query.AndWhere(string.Concat(["$keyPN",i," = $valuePN",i])).WithParam(string.Concat(["keyPN",i]), chiavi[i]).WithParam(string.Concat(["valuePN",i]), propNum[chiavi[i]]);
+
+        // aggiunta dei parametri in propStr. analogo a PropNum
+
+        chiavi = propStr.Keys.ToList();
+        flag = 0;
+        if(!query.Query.QueryText.Contains("WHERE"))
+        {
+            query = query.Where("$keyPS0 = $valuePS0").WithParams(new {keyPS0 = chiavi[0], valuePS0 = propStr[chiavi[0]]});
+            flag++;
+        }
+        for(int i = 0 + flag; i <  chiavi.Count; i ++)
+            query = query.AndWhere(string.Concat(["$keyPS",i," = $valuePS",i])).WithParam(string.Concat(["keyPS",i]), chiavi[i]).WithParam(string.Concat(["valuePS",i]), propStr[chiavi[i]]);
+
+        return query;
+    }
+
+    /// <summary>
+    /// crea la parte di query con la rimozione delle informazioni sensibili specificate
+    /// in <c>PropSempreSens</c> e <c>PropSensAssoc</c> all'interno degll' oggetto 
+    /// <c>DaSanitizzareRel</c> o <c>DaSanitizzareNodo</c>
+    /// </summary>
+    /// <param name="query">parte di query già composta in precedenza</param>
+    /// <param name="propSempreSens">proprietà <c>PropSempreSens</c> di <c>DaSanitizzareRel</c> o <c>DaSanitizzareNodo</c></param>
+    /// <param name="propSensAssoc">proprietà <c>PropSensAssoc</c> di <c>DaSanitizzareRel</c> o <c>DaSanitizzareNodo</c></param>
+    private ICypherFluentQuery CreaRemovePropSens(ICypherFluentQuery query, string[] propSempreSens, IDictionary<string,PropSensAssoc_> propSensAssoc)
+    {
+        // rimozione di tutte le proprietà sempre sensibili
+        foreach(string s in propSempreSens)
+            query = query.Remove(string.Concat(["r.",s]));
+                
+        foreach(string p in propSensAssoc.Keys)
+            if(propSensAssoc[p].SanitizzareProp)
+                // se sanitizzare prop è a true, sanitizzo la proprietà in p, 
+                // ovvero quella che è resa sensibile dal vettore di proprietà 
+                // associate
+                query = query.Remove(string.Concat(["r.",p]));
+            else 
+                // in caso contrario, sanitizzo tutte le proprietà associate
+                foreach (string pAssoc in propSensAssoc[p].PropAssoc)
+                    query = query.Remove(string.Concat(["r.",pAssoc]));
+
+        return query;
+    }
+
+    #endregion
+
+
+    #region funzioni di sanitizzazione dell'input
     /// <summary>
     /// richiama il metodo SanitizzaNodo dell'interfaccia ISanit
     /// </summary>
@@ -318,4 +317,5 @@ public class Gestore : IServizio
     {
         return T.SanitizzaRel(dsr);
     }
+    #endregion
 }
