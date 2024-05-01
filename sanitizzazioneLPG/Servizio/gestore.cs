@@ -75,9 +75,9 @@ public class Gestore : IServizio
 
     public async void SanitizzaDB(EnumSanit s)
     {
-        Task<string?> queryNodi;
-        Task<string?> queryRel;
-        Task<string?> queryCat;
+        Task<string> queryNodi;
+        Task<string> queryRel;
+        Task<string> queryCat;
 
         switch(s)
         {
@@ -97,7 +97,10 @@ public class Gestore : IServizio
                 if(string.IsNullOrEmpty(queryNodi.Result) && string.IsNullOrEmpty(queryRel.Result) && string.IsNullOrEmpty(queryCat.Result))
                     this.MostraMsg("Info", "Sanitizzazione portata a termine correttamente", Icon.Info, ButtonEnum.Ok);
                 else 
-                    this.MostraMsg("Errore", "La sanitizzazione non è andata a buon fine. Errori: \n" + "\tSanitizzazione dei nodi: " + (queryNodi.Result ?? "") + "\n\tSanitizzazione delle relazioni: " + (queryRel.Result ?? "") + "\n\tSanitizzazione delle catene: " + (queryCat.Result ?? ""), Icon.Error,ButtonEnum.Ok );
+                    this.MostraMsg("Errore", "La sanitizzazione non è andata a buon fine. Errori: \n" 
+                    + "\tSanitizzazione dei nodi: " + queryNodi.Result 
+                    + "\n\tSanitizzazione delle relazioni: " + queryRel.Result 
+                    + "\n\tSanitizzazione delle catene: " + queryCat.Result, Icon.Error,ButtonEnum.Ok );
                 break;
             default: 
                 this.MostraMsg("Errore", "Il tipo di sanitizzazione selezionato non esiste",Icon.Error,ButtonEnum.Ok);
@@ -133,7 +136,7 @@ public class Gestore : IServizio
 
 
     #region task sanitizzazione LPG
-    private async Task<string?> SanitizzaRel(BoltGraphClient bgc, List<IDom> lr)
+    private async Task<string> SanitizzaRel(BoltGraphClient bgc, List<IDom> lr)
     {
         
         ICypherFluentQuery query;
@@ -166,10 +169,10 @@ public class Gestore : IServizio
                 return e.Message;
             }
         }
-        return null;
+        return "";
     }
 
-    private async Task<string?> SanitizzaNodi(BoltGraphClient bgc, List<IDom> ln)
+    private async Task<string> SanitizzaNodi(BoltGraphClient bgc, List<IDom> ln)
     {
         ICypherFluentQuery query;
         IdNodo_ idn;
@@ -210,10 +213,10 @@ public class Gestore : IServizio
             }
         }
 
-        return null;
+        return "";
     }
 
-    private async Task<string?> SanitizzaCat(BoltGraphClient bgc, List<IDom> lc)
+    private async Task<string> SanitizzaCat(BoltGraphClient bgc, List<IDom> lc)
     {
         ICypherFluentQuery query;
         // lista di stringhe contenenti clausole match. match[0] contiene il primo match
@@ -363,7 +366,7 @@ public class Gestore : IServizio
             }
         }
 
-        return null;
+        return "";
     }
 
     #endregion
