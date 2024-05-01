@@ -109,12 +109,12 @@ public class Pers : IPers
                     _catene[i].Els.Add(d);
                 }
             }
-
-            // rimozione dalla lista dei nodi e delle relazioni degli elementi che 
-            // fanno parte di una catena
-            _nodi.RemoveAll(n => n.IdCat != null);
-            _relazioni.RemoveAll(r => r.IdCat != null);
         }
+        // rimozione dalla lista dei nodi e delle relazioni degli elementi che 
+        // fanno parte di una catena. gli elementi che non fanno parte di una catena 
+        // ma hanno idCat settato verranno rimossi ugualmente
+        _nodi.RemoveAll(n => n.IdCat != null);
+        _relazioni.RemoveAll(r => r.IdCat != null);
     }
 
     public List<IDom> ListAll(EnumTipoDom etd)
