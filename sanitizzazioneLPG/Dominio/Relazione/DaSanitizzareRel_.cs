@@ -13,6 +13,12 @@ public class DaSanitizzareRel_
                 _propSensAssoc = propSensAssoc;
         }
 
+        public DaSanitizzareRel_ ()
+        {
+                _propSempreSens = [];
+                _propSensAssoc = new Dictionary<string, PropSensAssoc_>();
+        }
+
         public string[] PropSempreSens { get => _propSempreSens; set => _propSempreSens = value; }
         public IDictionary<string, PropSensAssoc_> PropSensAssoc { get => _propSensAssoc; set => _propSensAssoc = value; }
 
