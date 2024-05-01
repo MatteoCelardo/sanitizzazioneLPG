@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Data.Converters;
+using Microsoft.CodeAnalysis;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
 using Neo4jClient;
@@ -73,9 +75,9 @@ public class Gestore : IServizio
 
     public async void SanitizzaDB(EnumSanit s)
     {
-        Task queryNodi;
-        Task queryRel;
-        Task queryCat;
+        Task<string?> queryNodi;
+        Task<string?> queryRel;
+        Task<string?> queryCat;
 
         switch(s)
         {
@@ -92,7 +94,10 @@ public class Gestore : IServizio
                 queryCat = Task.Run(() => this.SanitizzaCat(client, _pers.ListAll(EnumTipoDom.CATENE)));
                 Task.WaitAll(queryRel, queryNodi, queryCat);
 
-                this.MostraMsg("Info", "Sanitizzazione portata a termine correttamente", Icon.Info, ButtonEnum.Ok);
+                if(string.IsNullOrEmpty(queryNodi.Result) && string.IsNullOrEmpty(queryRel.Result) && string.IsNullOrEmpty(queryCat.Result))
+                    this.MostraMsg("Info", "Sanitizzazione portata a termine correttamente", Icon.Info, ButtonEnum.Ok);
+                else 
+                    this.MostraMsg("Errore", "La sanitizzazione non è andata a buon fine. Errori: \n" + "\tSanitizzazione dei nodi: " + (queryNodi.Result ?? "") + "\n\tSanitizzazione delle relazioni: " + (queryRel.Result ?? "") + "\n\tSanitizzazione delle catene: " + (queryCat.Result ?? ""), Icon.Error,ButtonEnum.Ok );
                 break;
             default: 
                 this.MostraMsg("Errore", "Il tipo di sanitizzazione selezionato non esiste",Icon.Error,ButtonEnum.Ok);
@@ -128,7 +133,7 @@ public class Gestore : IServizio
 
 
     #region task sanitizzazione LPG
-    private void SanitizzaRel(BoltGraphClient bgc, List<IDom> lr)
+    private async Task<string?> SanitizzaRel(BoltGraphClient bgc, List<IDom> lr)
     {
         
         ICypherFluentQuery query;
@@ -139,6 +144,7 @@ public class Gestore : IServizio
         {
             idr = r.IdRel;
             query = bgc.Cypher
+                .With("'ok' AS risultato")
                 .Match("()-[r]->()")
                 .WhereIf(!string.IsNullOrEmpty(idr.Etichetta),"type(r) = $etichetta")
                 .WithParam("etichetta",idr.Etichetta);
@@ -151,12 +157,19 @@ public class Gestore : IServizio
                 // relazione sensibile solo in parte
                 query = this.CreaRemovePropSens(query, r.DaSanitizzare.PropSempreSens, r.DaSanitizzare.PropSensAssoc,"r");
 
-            query.ExecuteWithoutResultsAsync();
+            try 
+            {
+                var res = await query.Return(risultato => risultato.As<string>()).ResultsAsync;
+            }
+            catch(Exception e)
+            {
+                return e.Message;
+            }
         }
-        
+        return null;
     }
 
-    private void SanitizzaNodi(BoltGraphClient bgc, List<IDom> ln)
+    private async Task<string?> SanitizzaNodi(BoltGraphClient bgc, List<IDom> ln)
     {
         ICypherFluentQuery query;
         IdNodo_ idn;
@@ -165,6 +178,7 @@ public class Gestore : IServizio
         {
             idn = n.IdNodo;
             query = bgc.Cypher
+                .With("'ok' AS risultato")
                 .Match("(n)")
                 .WhereIf(idn.Etichette.Length > 0,"ALL(etic IN $etichette WHERE etic IN labels(n))")
                 .WithParam("etichette",idn.Etichette);
@@ -185,11 +199,21 @@ public class Gestore : IServizio
                 query = this.CreaRemovePropSens(query, n.DaSanitizzare.PropSempreSens,n.DaSanitizzare.PropSensAssoc,"n");
             }
 
-            query.ExecuteWithoutResultsAsync();
+            
+            try 
+            {
+                await query.Return(risultato => risultato.As<string>()).ResultsAsync;
+            }
+            catch(Exception e)
+            {
+                return e.Message;
+            }
         }
+
+        return null;
     }
 
-    private void SanitizzaCat(BoltGraphClient bgc, List<IDom> lc)
+    private async Task<string?> SanitizzaCat(BoltGraphClient bgc, List<IDom> lc)
     {
         ICypherFluentQuery query;
         // lista di stringhe contenenti clausole match. match[0] contiene il primo match
@@ -295,6 +319,7 @@ public class Gestore : IServizio
                 match[0] += ")";
 
                 query = bgc.Cypher
+                    .With("'ok' AS risultato")
                     .Match(match[0])
                     .Where(where[0]);
 
@@ -309,7 +334,7 @@ public class Gestore : IServizio
                 // rimozione dei duplicati
                 with = string.Join(" ", with.Split(new Char[] {' '}).Distinct());
                 for(int k = 1; k < match.Count; k++)
-                    query = query.With(with.Remove(with.Length - 2)).Match(match[k]).Where(where[k]).Remove(remove[k]);
+                    query = query.With(with.Remove(with.Length - 2) + ", 'ok' AS risultato").Match(match[k]).Where(where[k]).Remove(remove[k]);
 
                 // inserimento dei parametri usati per le etichette dei nodi 
                 for(int i = 0; i < parNodi.Count; i++)
@@ -323,13 +348,22 @@ public class Gestore : IServizio
                 for(int i = 0; i < parEticNum.Count; i++)
                     query = query.WithParam(parEticNum[i],parValNum[i]); 
 
-                query.ExecuteWithoutResultsAsync();
+                try 
+                {
+                    await query.Return(risultato => risultato.As<string>()).ResultsAsync;
+                }
+                catch(Exception e)
+                {
+                    return e.Message;
+                }
 
                 where.Clear();
                 remove.Clear();
                 match.Clear();
             }
         }
+
+        return null;
     }
 
     #endregion
@@ -422,7 +456,7 @@ public class Gestore : IServizio
         
         foreach(string p in propSensAssoc.Keys)
         {
-            query = query.With(nomeElem);
+            query = query.With(nomeElem + ", 'ok' AS risultato");
             query = query.Match(match);
             if(propSensAssoc[p].SanitizzareProp)
             {
