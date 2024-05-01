@@ -15,6 +15,13 @@ public class IdNodo_
         _propNum = propNum;
     }
 
+    public IdNodo_()
+    {
+        _etichette = [];
+        _propNum = new Dictionary<string,double>();
+        _propStr = new Dictionary<string,string>();
+    }
+
     public string[] Etichette { get => _etichette; set => _etichette = value; }
     public IDictionary<string, string> PropStr {get => _propStr; set => _propStr = value;}
     public IDictionary<string, double> PropNum {get => _propNum; set => _propNum = value;}

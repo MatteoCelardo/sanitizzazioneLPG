@@ -15,6 +15,12 @@ public class IdRel_
         _propStr = propStr;
     }
 
+    public IdRel_ ()
+    {
+        _propStr = new Dictionary<string,string>();
+        _propNum = new Dictionary<string,double>();
+    }
+
     public string Etichetta { get => _etichetta; set => _etichetta = value; }
     public IDictionary<string, string> PropStr {get => _propStr; set => _propStr = value;}
     public IDictionary<string, double> PropNum {get => _propNum; set => _propNum = value;}

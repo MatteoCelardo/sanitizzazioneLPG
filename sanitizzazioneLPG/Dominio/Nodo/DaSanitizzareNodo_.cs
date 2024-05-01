@@ -15,6 +15,13 @@ public class DaSanitizzareNodo_
         _propSensAssoc = propSensAssoc;
     }
 
+    public DaSanitizzareNodo_()
+    {
+        _etichetteSens = [];
+        _propSempreSens = [];
+        _propSensAssoc = new Dictionary<string, PropSensAssoc_>();
+    }
+
 
     public string[] EtichetteSens { get => _etichetteSens; set => _etichetteSens = value; }
     public string[] PropSempreSens { get => _propSempreSens; set => _propSempreSens = value;}
