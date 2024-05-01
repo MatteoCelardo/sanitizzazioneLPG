@@ -93,7 +93,8 @@
 												"type": "array",
 												"items": {
 													"type": "string"
-												}
+												},
+												"minItems" : 1
 											},
 											"SanitizzareProp": {
 												"type": "boolean"
@@ -220,7 +221,8 @@
 												"type": "array",
 												"items": {
 													"type": "string"
-												}
+												},
+												"minItems" : 1
 											},
 											"SanitizzareProp": {
 												"type": "boolean"
