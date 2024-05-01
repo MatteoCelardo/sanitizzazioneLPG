@@ -82,25 +82,32 @@ public class Gestore : IServizio
         switch(s)
         {
             case EnumSanit.CANC: 
-                BoltGraphClient? client = new BoltGraphClient("bolt://localhost:7687", "neo4j", "tesiCelardo2024");
-                await client.ConnectAsync();
+                try 
+                {
+                    BoltGraphClient? client = new BoltGraphClient("bolt://localhost:7687", "neo4j", "tesiCelardo2024");
+                    await client.ConnectAsync();
 
-                // generazione ed esecuzione di tutte le query in thread paralleli.
-                // Si ricorda che, stando alla documentazione e da piccoli test che 
-                // ho condotto, ConnectAsync() restituisce una connessione thread safe
+                    // generazione ed esecuzione di tutte le query in thread paralleli.
+                    // Si ricorda che, stando alla documentazione e da piccoli test che 
+                    // ho condotto, ConnectAsync() restituisce una connessione thread safe
 
-                queryNodi = Task.Run(() => this.SanitizzaNodi(client, _pers.ListAll(EnumTipoDom.NODI)));
-                queryRel = Task.Run(() => this.SanitizzaRel(client, _pers.ListAll(EnumTipoDom.RELAZIONI)));
-                queryCat = Task.Run(() => this.SanitizzaCat(client, _pers.ListAll(EnumTipoDom.CATENE)));
-                Task.WaitAll(queryRel, queryNodi, queryCat);
+                    queryNodi = Task.Run(() => this.SanitizzaNodi(client, _pers.ListAll(EnumTipoDom.NODI)));
+                    queryRel = Task.Run(() => this.SanitizzaRel(client, _pers.ListAll(EnumTipoDom.RELAZIONI)));
+                    queryCat = Task.Run(() => this.SanitizzaCat(client, _pers.ListAll(EnumTipoDom.CATENE)));
+                    Task.WaitAll(queryRel, queryNodi, queryCat);
 
-                if(string.IsNullOrEmpty(queryNodi.Result) && string.IsNullOrEmpty(queryRel.Result) && string.IsNullOrEmpty(queryCat.Result))
-                    this.MostraMsg("Info", "Sanitizzazione portata a termine correttamente", Icon.Info, ButtonEnum.Ok);
-                else 
-                    this.MostraMsg("Errore", "La sanitizzazione non è andata a buon fine. Errori: \n" 
-                    + "\tSanitizzazione dei nodi: " + queryNodi.Result 
-                    + "\n\tSanitizzazione delle relazioni: " + queryRel.Result 
-                    + "\n\tSanitizzazione delle catene: " + queryCat.Result, Icon.Error,ButtonEnum.Ok );
+                    if(string.IsNullOrEmpty(queryNodi.Result) && string.IsNullOrEmpty(queryRel.Result) && string.IsNullOrEmpty(queryCat.Result))
+                        this.MostraMsg("Info", "Sanitizzazione portata a termine correttamente", Icon.Info, ButtonEnum.Ok);
+                    else 
+                        this.MostraMsg("Errore", "La sanitizzazione non è andata a buon fine. Errori: \n" 
+                        + "\tSanitizzazione dei nodi: " + queryNodi.Result 
+                        + "\n\tSanitizzazione delle relazioni: " + queryRel.Result 
+                        + "\n\tSanitizzazione delle catene: " + queryCat.Result, Icon.Error,ButtonEnum.Ok );
+                }
+                catch(Exception e )
+                {
+                    this.MostraMsg("Errore","Errore occorso in fase di connessione col db: " + e.Message, Icon.Error, ButtonEnum.Ok);
+                }
                 break;
             default: 
                 this.MostraMsg("Errore", "Il tipo di sanitizzazione selezionato non esiste",Icon.Error,ButtonEnum.Ok);
