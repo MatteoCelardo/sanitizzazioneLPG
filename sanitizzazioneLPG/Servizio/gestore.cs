@@ -344,31 +344,36 @@ public class Gestore : IServizio
 
         // aggiunta dei parametri in propNum
 
-        chiavi = propNum.Keys.ToList();
-
-        // se non è stata inserita l'etichetta, bisogna ancora inserire il where 
-        // nella query
-        if(!query.Query.QueryText.Contains("WHERE"))
+        if(propNum.Count != 0)
         {
-            query = query.Where(nomeElem + "." + chiavi[0] + " = $valuePN" + nomeElem + "0").WithParam("valuePN" + nomeElem + "0", propNum[chiavi[0]]);
-            flag++;
-        }
-        // tramite il flag, so se includere o meno il primo elemento nel ciclo
-        for(int i = 0 + flag; i < chiavi.Count; i++)
-           query = query.AndWhere(nomeElem + "." + chiavi[i] + " = $valuePN" + nomeElem + i).WithParam("valuePN" + nomeElem + i, propNum[chiavi[i]]);
+            chiavi = propNum.Keys.ToList();
 
+            // se non è stata inserita l'etichetta, bisogna ancora inserire il where 
+            // nella query
+            if(!query.Query.QueryText.Contains("WHERE"))
+            {
+                query = query.Where(nomeElem + "." + chiavi[0] + " = $valuePN" + nomeElem + "0").WithParam("valuePN" + nomeElem + "0", propNum[chiavi[0]]);
+                flag++;
+            }
+            // tramite il flag, so se includere o meno il primo elemento nel ciclo
+            for(int i = 0 + flag; i < chiavi.Count; i++)
+               query = query.AndWhere(nomeElem + "." + chiavi[i] + " = $valuePN" + nomeElem + i).WithParam("valuePN" + nomeElem + i, propNum[chiavi[i]]);
+
+        }
         // aggiunta dei parametri in propStr. analogo a PropNum
 
-        chiavi = propStr.Keys.ToList();
-        flag = 0;
-        if(!query.Query.QueryText.Contains("WHERE"))
+        if(propStr.Count != 0)
         {
-            query = query.Where(nomeElem + "." + chiavi[0] + " = $valuePS"+ nomeElem + "0").WithParam("valuePS" + nomeElem +"0", propStr[chiavi[0]]);
-            flag++;
+            chiavi = propStr.Keys.ToList();
+            flag = 0;
+            if(!query.Query.QueryText.Contains("WHERE"))
+            {
+                query = query.Where(nomeElem + "." + chiavi[0] + " = $valuePS"+ nomeElem + "0").WithParam("valuePS" + nomeElem +"0", propStr[chiavi[0]]);
+                flag++;
+            }
+            for(int i = 0 + flag; i <  chiavi.Count; i ++)
+                query = query.AndWhere(nomeElem + "." + chiavi[i] + " = $valuePS" + nomeElem + i).WithParam("valuePS" + nomeElem  + i, propStr[chiavi[i]]);
         }
-        for(int i = 0 + flag; i <  chiavi.Count; i ++)
-            query = query.AndWhere(nomeElem + "." + chiavi[i] + " = $valuePS" + nomeElem + i).WithParam("valuePS" + nomeElem  + i, propStr[chiavi[i]]);
-
         return query;
     }
 
@@ -423,43 +428,51 @@ public class Gestore : IServizio
     /// <param name="nomeElem">nome dato nella clausola match all'elemento di cui si vogliono rimuovere le informazioni sensibili</param>
     private void CreaWherePropCatena(ref string where, IDictionary<string,string> propStr, IDictionary<string,double> propNum, ref List<string> parEticStr, ref List<string> parValStr, ref List<string> parEticNum, ref List<double> parValNum, string nomeElem)
     {
-        IList<string> chiavi = propNum.Keys.ToList();
-        // flag usato per sapere se il primo elemento di propNum e propStr sia stato 
-        // inserito a parte o meno. flag = 0 se non inserito a parte, 1 altrimenti
-        int flag = 0;
-        //inserimento degli elementi in propNum
-        if(string.IsNullOrEmpty(where))
+        IList<string> chiavi;
+        int flag;
+        if(propNum.Count != 0)
         {
-            where = nomeElem + "." + chiavi[0] + " = $valuePN" + nomeElem + "0";
-            parEticNum.Add("valuePN" + nomeElem + "0");
-            parValNum.Add(propNum[chiavi[0]]);
-            flag++;
-        }
-        // tramite il flag, so se includere o meno il primo elemento nel ciclo
-        for(int k = 0 + flag; k < chiavi.Count; k++)
-        {
-            where += " AND " + nomeElem + "." + chiavi[k] + " = $valuePN" + nomeElem + k;
-            parEticNum.Add("valuePN" + nomeElem + k);
-            parValNum.Add(propNum[chiavi[k]]);
+            chiavi = propNum.Keys.ToList();
+            // flag usato per sapere se il primo elemento di propNum e propStr sia stato 
+            // inserito a parte o meno. flag = 0 se non inserito a parte, 1 altrimenti
+            flag = 0;
+            //inserimento degli elementi in propNum
+            if(string.IsNullOrEmpty(where))
+            {
+                where = nomeElem + "." + chiavi[0] + " = $valuePN" + nomeElem + "0";
+                parEticNum.Add("valuePN" + nomeElem + "0");
+                parValNum.Add(propNum[chiavi[0]]);
+                flag++;
+            }
+            // tramite il flag, so se includere o meno il primo elemento nel ciclo
+            for(int k = 0 + flag; k < chiavi.Count; k++)
+            {
+                where += " AND " + nomeElem + "." + chiavi[k] + " = $valuePN" + nomeElem + k;
+                parEticNum.Add("valuePN" + nomeElem + k);
+                parValNum.Add(propNum[chiavi[k]]);
+            }
         }
 
-        chiavi = propStr.Keys.ToList();
-        flag = 0;
-    
-        //inserimento degli elementi in propstr
-        if(string.IsNullOrEmpty(where))
+        if(propStr.Count != 0)
         {
-            where = nomeElem + "." + chiavi[0] + " = $valuePS" + nomeElem + "0";
-            parEticStr.Add("valuePS" + nomeElem + "0");
-            parValStr.Add(propStr[chiavi[0]]);
-            flag++;
-        }
-        // tramite il flag, so se includere o meno il primo elemento nel ciclo
-        for(int k = 0 + flag; k < chiavi.Count; k++)
-        {
-            where +=  " AND " + nomeElem + "." + chiavi[k] + " = $valuePS" + nomeElem + k;
-            parEticStr.Add("valuePS" + nomeElem + k);
-            parValStr.Add(propStr[chiavi[k]]);
+            chiavi = propStr.Keys.ToList();
+            flag = 0;
+
+            //inserimento degli elementi in propstr
+            if(string.IsNullOrEmpty(where))
+            {
+                where = nomeElem + "." + chiavi[0] + " = $valuePS" + nomeElem + "0";
+                parEticStr.Add("valuePS" + nomeElem + "0");
+                parValStr.Add(propStr[chiavi[0]]);
+                flag++;
+            }
+            // tramite il flag, so se includere o meno il primo elemento nel ciclo
+            for(int k = 0 + flag; k < chiavi.Count; k++)
+            {
+                where +=  " AND " + nomeElem + "." + chiavi[k] + " = $valuePS" + nomeElem + k;
+                parEticStr.Add("valuePS" + nomeElem + k);
+                parValStr.Add(propStr[chiavi[k]]);
+            }
         }
     }
 
