@@ -54,7 +54,7 @@ public class Gestore : IServizio
             err = this.ValidaJSON(path);
             if (string.IsNullOrEmpty(err))
             {
-                this._pers.Crea(path);
+                this._pers.Importa();
                 this.MostraMsg("Info", "Importazione del file JSON portata a termine correttamente",Icon.Info,ButtonEnum.Ok);
                 ret = true;
             }

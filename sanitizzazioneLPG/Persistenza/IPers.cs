@@ -22,13 +22,14 @@ public interface IPers
     /// </exception>
     /// <exception cref="PersExcNotFound">
     /// Eccezione sollevata nel caso un id specificato in una catena non sia presente
+    /// oppure se non si è già letto il file dal disco con la funzione di validazione
     /// </exception>
     /// <exception cref="PersExc">
     /// Eccezione sollevata nel caso in cui l'oggetto di una catena sia dello stesso 
     /// tipo del precedente oppure se si cerca di importare informazioni da un nuovo 
     /// file JSON senza prima svuotare la persistenza col metodo <c>Cancella()</c>
     /// </exception>
-    void Crea(string path);
+    void Importa();
 
     /// <summary>
     /// cancella il contenuto della persistenza

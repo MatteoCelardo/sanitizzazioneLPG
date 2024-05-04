@@ -19,6 +19,8 @@ public class Pers : IPers
     private List<Nodo> _nodi;
     private List<Relazione> _relazioni;
     private List<Catena> _catene;
+    // stringa contenente il file json letto dal disco
+    private string _json;
 
     #region singleton
     private static Pers? _istanza = null;
@@ -34,6 +36,8 @@ public class Pers : IPers
         _nodi = new List<Nodo>();
         _relazioni = new List<Relazione>();
         _catene = new List<Catena>();
+
+        _json = "";
     } 
 
     public static Pers Istanza {
@@ -55,19 +59,20 @@ public class Pers : IPers
         _catene.Clear();
     }
 
-    public void Crea(string path)
+    public void Importa()
     {
         IDom? d;
-        string json;
         FileJson? dati;
 
         // generazione di un'eccezione se sno già presenti dati in memoria
         if(_nodi.Count > 0 || _relazioni.Count > 0 || _catene.Count > 0)
             throw new PersExc("impossibile caricare il contenuto del file JSON: sono già presenti informazioni nella persistenza. Cancellarle prima di importare nuovi dati.");
 
-        json = File.ReadAllText(path);
+        if(string.IsNullOrEmpty(_json))
+            throw new PersExcNotFound("impossibile importare i dati nella persistenza: non è stato letto nessun file JSON in precedenza");
+
         // parsing del file JSON per ottenere i rispettivi oggetti C#
-        dati = JsonConvert.DeserializeObject<FileJson>(json);
+        dati = JsonConvert.DeserializeObject<FileJson>(_json);
 
         // importazione di nodi, relazioni e catene senisbili negli attributi della 
         // persistenza.
@@ -133,12 +138,13 @@ public class Pers : IPers
     }
 
     public IList<ValidationError> Valida(string path){
+        _json = File.ReadAllText(path);
         // lettura del file da validare
-        JObject json = JObject.Parse(File.ReadAllText(path));
+        JObject valJSON = JObject.Parse(_json);
         //inizializzazione della lista che conterrà gli eventuali errori riscontrati nel parsing
         IList<ValidationError> errori = new List<ValidationError>();
 
-        json.IsValid(_schVal, out errori);
+        valJSON.IsValid(_schVal, out errori);
 
         return errori;
             
