@@ -338,20 +338,15 @@ public class Gestore : IServizio
 
 
                 if(!string.IsNullOrEmpty(delete))    
-                    // rimuovo la virgola infondo alla stringa delete
+                    // rimuovo la virgola e lo spazio infondo alla stringa delete
                     query = query.DetachDelete(delete.Remove(delete.Length - 2));
-
-                /* rimozione dei duplicati
-                //with = string.Join(" ", with.Split(new Char[] {' '}).Distinct());
-                for(int k = 1; k < match.Count; k++)
-                    query = query.With(with.Remove(with.Length - 2) + ", 'ok' AS risultato").Match(match[k]).Where(where[k]).Remove(remove[k]);*/
 
                 // aggiunta di tutte le chiamate apoc
                 foreach(string chiave in callApoc.Keys.ToList())
                 {
                     query = query.With(with.Remove(with.Length - 2) + ", 'ok' AS risultato");
-                    // nel caso callApoc.Keys.ToList()[i] contenga ';', a sinistra 
-                    // c'è la condizione where e a destra la chiamata apoc
+                    // a sinistra del ';' c'è la condizione per cui chiamare la apoc, 
+                    // mentre a destra c'è la chiamata apoc 
                     string[] temp = chiave.Split(';');
                     query = query
                             .WhereIf(!string.IsNullOrEmpty(temp[0]),temp[0])
