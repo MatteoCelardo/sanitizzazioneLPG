@@ -239,23 +239,16 @@ public class Gestore : IServizio
         // stringa con la clausola delete
         string delete;
 
-        // lista di stringe usata per contenere i valori delle etichette usate come 
-        // parametri per inserire il vettore di etichette di ciascun nodo.
+        // dizionario usato per contenere i nomi dei parametri usati per inserire 
+        // il vettore di etichette di ciascun nodo.
         // le etichette riferite ad altri campi stringa sono salvate in parEticStr
-        List<string> parNodi = new List<string>();
-        // lista parallela a parNodi che conteiene tutti i vettori di etichette di 
-        // ciascun nodo
-        List<string[]> parValNodi = new List<string[]>();
+        Dictionary<string,string[]> parNodi = new Dictionary<string, string[]>();
 
-        // lista che contiene i valori delle etichette usate come parametri che 
-        // verranno sostituiti da stringhe
-        List<string> parEticStr = new List<string>();
-        // lista parallela a parEticStr con le stringhe relative alle etichette
-        List<string> parValStr = new List<string>();
+        // dizionario con i parametri che verranno sostituiti da stringhe
+        Dictionary<string,string> parStr = new Dictionary<string,string>();
 
-        // coppia di liste analoghe a parEticStr e parValStr per i valori numerici
-        List<string> parEticNum = new List<string>();
-        List<double> parValNum = new List<double>();
+        // dizionario con i parametri che verranno sostituiti da numeri
+        Dictionary<string,double> parNum = new Dictionary<string, double>();
 
         // dizionario per conenere le chiamate apoc e la yield che deve seguire
         Dictionary<string,string> callApoc = new Dictionary<string, string>();
@@ -291,18 +284,17 @@ public class Gestore : IServizio
                             where = "type(r"+ j + i + ") = $etichetta" + j + i;
                         else 
                             where += " AND type(r"+ j + i + ") = $etichetta" + j + i;
-                        parEticStr.Add("etichetta" + j + i);
-                        parValStr.Add(r.IdRel.Etichetta);
+                        parStr.Add("etichetta" + j + i,r.IdRel.Etichetta);
                     }
 
-                    this.CreaWherePropCatena(ref where, r.IdRel.PropStr, r.IdRel.PropNum, ref parEticStr, ref parValStr, ref parEticNum, ref parValNum,"r"+j+i);
+                    this.CreaWherePropCatena(ref where, r.IdRel.PropStr, r.IdRel.PropNum, ref parStr, ref parNum,"r"+j+i);
 
                     if(r.RelSens)
                         delete += "r" + j + i + ", ";
                     else if(r.DaSanitizzare != null)
                     {
                         with += "r" + j + i + ", ";
-                        this.CreaRemovePropSensCatena(ref with, ref callApoc, ref parApoc, ref parEticStr, ref parValStr, r.DaSanitizzare.PropSempreSens, r.DaSanitizzare.PropSensAssoc,"r"+j+i);
+                        this.CreaRemovePropSensCatena(ref with, ref callApoc, ref parApoc, ref parStr, r.DaSanitizzare.PropSempreSens, r.DaSanitizzare.PropSensAssoc,"r"+j+i);
                     }
                 }
                 else 
@@ -315,11 +307,10 @@ public class Gestore : IServizio
                                 where = "ALL(etic IN $etichette" + j+ i + " WHERE etic IN labels(n" + j + i +"))";
                             else 
                                 where += " AND ALL(etic IN $etichette" + j +  i + " WHERE etic IN labels(n" + j + i +"))";
-                            parNodi.Add("etichette" + j + i);
-                            parValNodi.Add(n.IdNodo.Etichette);
+                            parNodi.Add("etichette" + j + i, n.IdNodo.Etichette);
                         }
 
-                        this.CreaWherePropCatena(ref where, n.IdNodo.PropStr, n.IdNodo.PropNum, ref parEticStr, ref parValStr, ref parEticNum, ref parValNum,"n"+j+i);
+                        this.CreaWherePropCatena(ref where, n.IdNodo.PropStr, n.IdNodo.PropNum, ref parStr,  ref parNum, "n"+j+i);
 
                         if(n.NodoSens)
                             delete += "n" + j + i + ", ";
@@ -333,7 +324,7 @@ public class Gestore : IServizio
                                 parApoc.Add("etSempreSensN"+ j + i, n.DaSanitizzare.EtichetteSens);
                             }
 
-                            this.CreaRemovePropSensCatena(ref with, ref callApoc, ref parApoc, ref parEticStr, ref parValStr, n.DaSanitizzare.PropSempreSens, n.DaSanitizzare.PropSensAssoc,"n"+j+i);
+                            this.CreaRemovePropSensCatena(ref with, ref callApoc, ref parApoc, ref parStr, n.DaSanitizzare.PropSempreSens, n.DaSanitizzare.PropSensAssoc,"n"+j+i);
                         }
                     }
 
@@ -356,33 +347,33 @@ public class Gestore : IServizio
                     query = query.With(with.Remove(with.Length - 2) + ", 'ok' AS risultato").Match(match[k]).Where(where[k]).Remove(remove[k]);*/
 
                 // aggiunta di tutte le chiamate apoc
-                for(int i = 0; i < callApoc.Keys.Count; i++)
+                foreach(string chiave in callApoc.Keys.ToList())
                 {
                     query = query.With(with.Remove(with.Length - 2) + ", 'ok' AS risultato");
                     // nel caso callApoc.Keys.ToList()[i] contenga ';', a sinistra 
                     // c'è la condizione where e a destra la chiamata apoc
-                    string[] temp = callApoc.Keys.ToList()[i].Split(';');
+                    string[] temp = chiave.Split(';');
                     query = query
                             .WhereIf(!string.IsNullOrEmpty(temp[0]),temp[0])
                             .Call(temp[1])
-                            .Yield(callApoc[callApoc.Keys.ToList()[i]]);
+                            .Yield(callApoc[chiave]);
                 }
 
                 // inserimento dei parametri usati per le etichette dei nodi 
-                for(int i = 0; i < parNodi.Count; i++)
-                    query = query.WithParam(parNodi[i],parValNodi[i]); 
+                foreach(string chiave in parNodi.Keys.ToList())
+                    query = query.WithParam(chiave,parNodi[chiave]); 
 
                 // inserimento dei parametri di tipo stringa
-                for(int i = 0; i < parEticStr.Count; i++)
-                    query = query.WithParam(parEticStr[i],parValStr[i]); 
+                foreach(string chiave in parStr.Keys.ToList())
+                    query = query.WithParam(chiave,parStr[chiave]); 
 
                 // inserimento dei parametri numerici
-                for(int i = 0; i < parEticNum.Count; i++)
-                    query = query.WithParam(parEticNum[i],parValNum[i]); 
+                foreach(string chiave in parNum.Keys.ToList())
+                    query = query.WithParam(chiave,parNum[chiave]); 
                 
                 // inserimento parametri apoc
-                for(int i = 0; i < parApoc.Keys.Count; i++)
-                    query = query.WithParam(parApoc.Keys.ToList()[i],parApoc[parApoc.Keys.ToList()[i]]);
+                foreach(string chiave in parApoc.Keys.ToList())
+                    query = query.WithParam(chiave,parApoc[chiave]);
 
                 try 
                 {
@@ -393,11 +384,8 @@ public class Gestore : IServizio
                     return e.Message;
                 }
                 parNodi.Clear();
-                parValNodi.Clear();
-                parEticStr.Clear();
-                parValStr.Clear();
-                parEticNum.Clear();
-                parValNum.Clear();
+                parStr.Clear();
+                parNum.Clear();
                 callApoc.Clear();
                 parApoc.Clear();
             }
@@ -553,12 +541,10 @@ public class Gestore : IServizio
     /// <param name="where">vettore con le clausole where scritte in precedenza</param>
     /// <param name="propStr">proprietà PropStr di <c>IdRel</c> o <c>IdNodo</c></param>
     /// <param name="propNum">proprietà PropNum di <c>IdRel</c> o <c>IdNodo</c></param>
-    /// <param name="parEticStr">lista usata per tenere traccia delle etichette usate come parametro</param>
-    /// <param name="parValStr">lista parallela a <c>parEticStr</c> per contenere i valori corrispondenti a ciascuna etichetta</param>
-    /// <param name="parEticNum">analogo di <c>parEticStr</c> per le etichette cui corrisponde un valore numerico</param>
-    /// <param name="parValNum">analogo di <c>parValStr</c> che contiene i valori numerici relativi a <c>parEticNum</c></param>
+    /// <param name="parStr">dizionario usato per tenere traccia dei parametri che verranno sostituiti con stringhe e dei rispettivi valori</param>
+    /// <param name="parNum">analogo di <c>parStr</c> per le etichette cui corrisponde un valore numerico</param>
     /// <param name="nomeElem">nome dato nella clausola match all'elemento di cui si vogliono rimuovere le informazioni sensibili</param>
-    private void CreaWherePropCatena(ref string where, IDictionary<string,string> propStr, IDictionary<string,double> propNum, ref List<string> parEticStr, ref List<string> parValStr, ref List<string> parEticNum, ref List<double> parValNum, string nomeElem)
+    private void CreaWherePropCatena(ref string where, IDictionary<string,string> propStr, IDictionary<string,double> propNum, ref Dictionary<string,string> parStr, ref Dictionary<string,double> parNum, string nomeElem)
     {
         IList<string> chiavi;
         int flag;
@@ -572,16 +558,14 @@ public class Gestore : IServizio
             if(string.IsNullOrEmpty(where))
             {
                 where = nomeElem + "." + chiavi[0] + " = $valuePN" + nomeElem + "0";
-                parEticNum.Add("valuePN" + nomeElem + "0");
-                parValNum.Add(propNum[chiavi[0]]);
+                parNum.Add("valuePN" + nomeElem + "0",propNum[chiavi[0]]);
                 flag++;
             }
             // tramite il flag, so se includere o meno il primo elemento nel ciclo
             for(int k = 0 + flag; k < chiavi.Count; k++)
             {
                 where += " AND " + nomeElem + "." + chiavi[k] + " = $valuePN" + nomeElem + k;
-                parEticNum.Add("valuePN" + nomeElem + k);
-                parValNum.Add(propNum[chiavi[k]]);
+                parNum.Add("valuePN" + nomeElem + k, propNum[chiavi[k]]);
             }
         }
 
@@ -594,16 +578,14 @@ public class Gestore : IServizio
             if(string.IsNullOrEmpty(where))
             {
                 where = nomeElem + "." + chiavi[0] + " = $valuePS" + nomeElem + "0";
-                parEticStr.Add("valuePS" + nomeElem + "0");
-                parValStr.Add(propStr[chiavi[0]]);
+                parStr.Add("valuePS" + nomeElem + "0", propStr[chiavi[0]]);
                 flag++;
             }
             // tramite il flag, so se includere o meno il primo elemento nel ciclo
             for(int k = 0 + flag; k < chiavi.Count; k++)
             {
                 where +=  " AND " + nomeElem + "." + chiavi[k] + " = $valuePS" + nomeElem + k;
-                parEticStr.Add("valuePS" + nomeElem + k);
-                parValStr.Add(propStr[chiavi[k]]);
+                parStr.Add("valuePS" + nomeElem + k, propStr[chiavi[k]]);
             }
         }
     }
@@ -615,14 +597,13 @@ public class Gestore : IServizio
     /// <c>DaSanitizzareRel</c> o <c>DaSanitizzareNodo</c> per gli elementi del 
     /// dominio nelle catene
     /// </summary>
-    /// <param name="match">vettore con le clausole remove scritte in precedenza</param>
     /// <param name="with">stringa con la parte di clausola with scritta in precedenza</param>
-    /// <param name="where">vettore con le clausole remove scritte in precedenza</param>
-    /// <param name="remove">vettore con le clausole remove scritte in precedenza</param>
     /// <param name="propSempreSens">proprietà <c>PropSempreSens</c> di <c>DaSanitizzareRel</c> o <c>DaSanitizzareNodo</c></param>
     /// <param name="propSensAssoc">proprietà <c>PropSensAssoc</c> di <c>DaSanitizzareRel</c> o <c>DaSanitizzareNodo</c></param>
     /// <param name="nomeElem">nome dato nella clausola match all'elemento di cui si vogliono rimuovere le informazioni sensibili</param>
-    private void CreaRemovePropSensCatena(ref string with, ref Dictionary<string,string> callApoc, ref Dictionary<string,string[]> parApoc, ref  List<string> parEticStr, ref List<string> parValStr, string[] propSempreSens, IDictionary<string,PropSensAssoc_> propSensAssoc, string nomeElem)
+    /// <param name="callApoc">dizionario avente per chiave le chiamate apoc e la condizione in cui farle e per valore lo yield posto a termine della chiamata apoc</param>
+    /// <param name="parApoc">dizionario usato per contenere i parametri usati nelle chiamate apoc ed i rispettivi valori</param>
+    private void CreaRemovePropSensCatena(ref string with, ref Dictionary<string,string> callApoc, ref Dictionary<string,string[]> parApoc, ref  Dictionary<string,string> parStr, string[] propSempreSens, IDictionary<string,PropSensAssoc_> propSensAssoc, string nomeElem)
     {
         // sintra usata per le relazioni: siccome i detach delete possono cancellare 
         // delle relazioni specificate nel file, bisogna controllare che effettivamente 
@@ -674,8 +655,7 @@ public class Gestore : IServizio
                     // dal ;
                     callApoc.Add((string.IsNullOrEmpty(el) ? "" : el + " AND ")+"ANY(pA IN $propAssoc"+nomeElem+i+" WHERE "+nomeElem+"[pA] IS NOT NULL);"+ apoc + "(" + nomeElem + ", [$p"+nomeElem+i+"])",apocYield);
                     parApoc.Add("propAssoc"+nomeElem+i, propSensAssoc[chiavi[i]].PropAssoc);
-                    parEticStr.Add("p"+nomeElem+i);
-                    parValStr.Add(chiavi[i]);
+                    parStr.Add("p"+nomeElem+i,chiavi[i]);
                 }
                 else 
                 {
@@ -683,8 +663,7 @@ public class Gestore : IServizio
                     // presente
                     callApoc.Add((string.IsNullOrEmpty(el) ? "" : el + " AND ") + nomeElem + "[$p"+nomeElem+i+"]"  + " IS NOT NULL;"+ apoc + "(" + nomeElem + ", $pAssociate"+nomeElem+i+")",apocYield);
                     parApoc.Add("pAssociate"+nomeElem+i, propSensAssoc[chiavi[i]].PropAssoc);
-                    parEticStr.Add("p"+nomeElem+i);
-                    parValStr.Add(chiavi[i]);
+                    parStr.Add("p"+nomeElem+i, chiavi[i]);
                 }
             }
         }
