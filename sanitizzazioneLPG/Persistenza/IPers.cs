@@ -10,8 +10,7 @@ public interface IPers
     /// Inseririsce nella persistenza gli oggetti del dominio 
     /// da sanitizzare
     /// </summary>
-    /// <remarks>Il metodo suppone che sia già stata fatta la validazione del file specificato</remarks>
-    /// <remarks>
+    /// <remarks>Il metodo suppone che sia già stata fatta la validazione del file specificato.
     /// Si ricorda che nelle catene devono alternarsi nodi e relazioni, motivo 
     /// per cui inserire due nodi o due relazioni di fila porterà alla generazione 
     /// dell'eccezione <c>PersExcEmpty</c>
