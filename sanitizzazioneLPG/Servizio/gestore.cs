@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Joins;
 using System.Threading.Tasks;
 using Avalonia.Data.Converters;
 using Microsoft.CodeAnalysis;
@@ -207,8 +208,8 @@ public class Gestore : IServizio
                     query = query
                             .With("n, $etSempreSens AS ess, 'ok' AS risultato")
                             .WithParam("etSempreSens", n.DaSanitizzare.EtichetteSens)
-                            .Call("apoc.create.removeLabels(n, ess)")
-                            .Yield("node");
+                            .Call("apoc.do.when(ANY (ets IN ess WHERE ets in labels(n)), \'CALL apoc.create.removeLabels(n, ess) YIELD node RETURN node\', \'RETURN \"nulla\" AS risultato\',{n: n, ess: ess})")
+                            .Yield("value");
 
                 query = this.CreaRemovePropSens(query, n.DaSanitizzare.PropSempreSens,n.DaSanitizzare.PropSensAssoc,"n");
             }
@@ -250,7 +251,7 @@ public class Gestore : IServizio
         // dizionario con i parametri che verranno sostituiti da numeri
         Dictionary<string,double> parNum = new Dictionary<string, double>();
 
-        // dizionario per conenere le chiamate apoc e la yield che deve seguire
+        // dizionario per conenere le chiamate apoc e l'eventuale condizione con cui precederla
         Dictionary<string,string> callApoc = new Dictionary<string, string>();
         // dizionario contenere ciascun parametro usato dalle chiamate apoc e il relativo 
         // vettore
@@ -319,8 +320,9 @@ public class Gestore : IServizio
                             with += "n" + j + i + ", ";
                             if(n.DaSanitizzare.EtichetteSens.Length > 0)
                             {
+                                with += "$etSempreSensN"+ j + i+" AS ess_"+j+i+", ";
                                 // apoc per la rimozione di tutte le etichette sensibili
-                                callApoc.Add(";apoc.create.removeLabels(n"+ j + i +", $etSempreSensN" + j + i+")","node");
+                                callApoc.Add("apoc.do.when(ANY (ets IN ess_"+j+i+" WHERE ets IN labels(n" + j + i +")), \'CALL apoc.create.removeLabels(n"+ j + i +", ess_" + j + i+") YIELD node RETURN node\', \'RETURN \"nulla\" AS risultato\',{ess_"+j+i+": ess_"+j+i+", n" + j + i +": n" + j + i +"})","");
                                 parApoc.Add("etSempreSensN"+ j + i, n.DaSanitizzare.EtichetteSens);
                             }
 
@@ -345,13 +347,10 @@ public class Gestore : IServizio
                 foreach(string chiave in callApoc.Keys.ToList())
                 {
                     query = query.With(with.Remove(with.Length - 2) + ", 'ok' AS risultato");
-                    // a sinistra del ';' c'è la condizione per cui chiamare la apoc, 
-                    // mentre a destra c'è la chiamata apoc 
-                    string[] temp = chiave.Split(';');
                     query = query
-                            .WhereIf(!string.IsNullOrEmpty(temp[0]),temp[0])
-                            .Call(temp[1])
-                            .Yield(callApoc[chiave]);
+                            .WhereIf(!string.IsNullOrEmpty(callApoc[chiave]),callApoc[chiave])
+                            .Call(chiave)
+                            .Yield("value");
                 }
 
                 // inserimento dei parametri usati per le etichette dei nodi 
@@ -481,43 +480,39 @@ public class Gestore : IServizio
             apocYield = "rel";
         }
         // rimozione di tutte le proprietà sempre sensibili
+
         if(propSempreSens.Length > 0)
             query = query
-                    .With(nomeElem + ", 'ok' AS risultato")
-                    .Call(apoc + "(" + nomeElem + ", $pSempreSens)")
+                    .With(nomeElem + ", $pSempreSens AS pss, 'ok' AS risultato")
                     .WithParam("pSempreSens",propSempreSens)
-                    .Yield(apocYield);
+                    .Call("apoc.do.when(ANY(prop in pss WHERE "+nomeElem+"[prop] IS NOT NULL), \'CALL "+apoc+"("+nomeElem+",pss) YIELD "+apocYield+" RETURN "+apocYield+"\', \'RETURN \"nulla\" AS risultato\',{"+nomeElem+":"+nomeElem+",pss:pss})")
+                    .Yield("value");
 
         if(propSensAssoc.Keys.Count > 0)
         {
             chiavi = propSensAssoc.Keys.ToList();
-            for(int i = 0; i < propSensAssoc.Keys.Count; i++)//foreach(string p in propSensAssoc.Keys)
+            for(int i = 0; i < propSensAssoc.Keys.Count; i++)
             {
-                query = query.With(nomeElem + ", 'ok' AS risultato");
+                query = query
+                        .With(nomeElem + ", $propAssoc"+i+" AS pAssoc, $p"+i+" AS p, 'ok' AS risultato")
+                        .WithParam("propAssoc"+i, propSensAssoc[chiavi[i]].PropAssoc)
+                        .WithParam("p"+i,chiavi[i]);
                 if(propSensAssoc[chiavi[i]].SanitizzareProp)
                 {
                     // se sanitizzare prop è a true, sanitizzo la proprietà in p, 
                     // ovvero quella che è resa sensibile dal vettore di proprietà 
                     // associate
                     query = query
-                            .Where("ANY(pA IN $propAssoc"+i+" WHERE "+nomeElem+"[pA] IS NOT NULL)")
-                            .WithParam("propAssoc"+i, propSensAssoc[chiavi[i]].PropAssoc)
-                            .With(nomeElem + ", 'ok' AS risultato")
-                            .Call(apoc + "(" + nomeElem + ", [$p"+i+"])")
-                            .WithParam("p"+i,chiavi[i])
-                            .Yield(apocYield);
+                            .Call("apoc.do.when(ANY(pA IN pAssoc WHERE "+nomeElem+"[pA] IS NOT NULL),\'CALL "+apoc + "(" + nomeElem + ", [p]) YIELD "+apocYield+" RETURN "+apocYield+"\', \'RETURN \"nulla\" AS risultato\', {"+nomeElem+":"+nomeElem+",pAssoc:pAssoc,p:p})")
+                            .Yield("value");
                 }
                 else 
                 {
                     // in caso contrario, sanitizzo tutte le proprietà associate se p è 
                     // presente
                     query = query
-                            .Where(nomeElem + "[$p"+i+"]"  + " IS NOT NULL")
-                            .WithParam("p"+i,chiavi[i])
-                            .With(nomeElem + ", 'ok' AS risultato")
-                            .Call(apoc + "(" + nomeElem + ", $pAssociate"+i+")")
-                            .WithParam("pAssociate"+i,propSensAssoc[chiavi[i]].PropAssoc)
-                            .Yield(apocYield);
+                            .Call("apoc.do.when("+nomeElem+"[p] IS NOT NULL,\'CALL "+apoc + "(" + nomeElem + ", pAssoc) YIELD "+apocYield+" RETURN "+apocYield+"\', \'RETURN \"nulla\" AS risultato\', {"+nomeElem+":"+nomeElem+",pAssoc:pAssoc,p:p})")
+                            .Yield("value");
                 }
             }
         }
@@ -596,7 +591,7 @@ public class Gestore : IServizio
     /// <param name="propSempreSens">proprietà <c>PropSempreSens</c> di <c>DaSanitizzareRel</c> o <c>DaSanitizzareNodo</c></param>
     /// <param name="propSensAssoc">proprietà <c>PropSensAssoc</c> di <c>DaSanitizzareRel</c> o <c>DaSanitizzareNodo</c></param>
     /// <param name="nomeElem">nome dato nella clausola match all'elemento di cui si vogliono rimuovere le informazioni sensibili</param>
-    /// <param name="callApoc">dizionario avente per chiave le chiamate apoc e la condizione in cui farle e per valore lo yield posto a termine della chiamata apoc</param>
+    /// <param name="callApoc">dizionario avente per chiave le chiamate apoc e per valore le condizioni where relative</param>
     /// <param name="parApoc">dizionario usato per contenere i parametri usati nelle chiamate apoc ed i rispettivi valori</param>
     private void CreaRemovePropSensCatena(ref string with, ref Dictionary<string,string> callApoc, ref Dictionary<string,string[]> parApoc, ref  Dictionary<string,string> parStr, string[] propSempreSens, IDictionary<string,PropSensAssoc_> propSensAssoc, string nomeElem)
     {
@@ -629,7 +624,8 @@ public class Gestore : IServizio
         // rimozione di tutte le proprietà sempre sensibili
         if(propSempreSens.Length > 0)
         {
-            callApoc.Add(el+";"+apoc + "(" + nomeElem + ", $pSempreSens"+nomeElem+")", apocYield);
+            with += "$pSempreSens"+nomeElem+" AS pss_"+nomeElem+", ";
+            callApoc.Add("apoc.do.when(ANY(prop in pss_"+nomeElem+" WHERE "+nomeElem+"[prop] IS NOT NULL),\'CALL "+apoc + "(" + nomeElem + ", pss_"+nomeElem+") YIELD "+ apocYield+ " RETURN "+apocYield+"\',\'RETURN \"nulla\" AS risultato\',{"+nomeElem+":"+nomeElem+",pss_"+nomeElem+":pss_"+nomeElem+"})",el);
             parApoc.Add("pSempreSens"+nomeElem,propSempreSens);
         }
 
@@ -638,28 +634,19 @@ public class Gestore : IServizio
             chiavi = propSensAssoc.Keys.ToList();
             for(int i = 0; i < propSensAssoc.Keys.Count; i++)//foreach(string p in propSensAssoc.Keys)
             {
+                with += "$propAssoc"+nomeElem+i+" AS pAssoc_"+nomeElem+i+", $p"+nomeElem+i +" AS p_"+nomeElem+i + ", ";
+                parApoc.Add("propAssoc"+nomeElem+i, propSensAssoc[chiavi[i]].PropAssoc);
+                parStr.Add("p"+nomeElem+i,chiavi[i]);
                 if(propSensAssoc[chiavi[i]].SanitizzareProp)
-                {
                     // se sanitizzare prop è a true, sanitizzo la proprietà in p, 
                     // ovvero quella che è resa sensibile dal vettore di proprietà 
                     // associate
-
-                    // la clausola where viene inserita insieme alla chiamata apoc e 
-                    // separata successivamente per evitare problemi quando si 
-                    // dovrà comporre la query da lanciare sul db. le due cose sono separate 
-                    // dal ;
-                    callApoc.Add((string.IsNullOrEmpty(el) ? "" : el + " AND ")+"ANY(pA IN $propAssoc"+nomeElem+i+" WHERE "+nomeElem+"[pA] IS NOT NULL);"+ apoc + "(" + nomeElem + ", [$p"+nomeElem+i+"])",apocYield);
-                    parApoc.Add("propAssoc"+nomeElem+i, propSensAssoc[chiavi[i]].PropAssoc);
-                    parStr.Add("p"+nomeElem+i,chiavi[i]);
-                }
+                    callApoc.Add("apoc.do.when(ANY(pA IN pAssoc_"+nomeElem+i+" WHERE "+nomeElem+"[pA] IS NOT NULL), \'CALL "+ apoc + "(" + nomeElem + ", [p_"+nomeElem+i+"]) YIELD "+apocYield+" RETURN "+apocYield+"\', \'RETURN \"nulla\" AS risultato\',{"+nomeElem+":"+nomeElem+", pAssoc_"+nomeElem+i+":pAssoc_"+nomeElem+i+",p_"+nomeElem+i+":p_"+nomeElem+i+"} )",el);
                 else 
-                {
                     // in caso contrario, sanitizzo tutte le proprietà associate se p è 
                     // presente
-                    callApoc.Add((string.IsNullOrEmpty(el) ? "" : el + " AND ") + nomeElem + "[$p"+nomeElem+i+"]"  + " IS NOT NULL;"+ apoc + "(" + nomeElem + ", $pAssociate"+nomeElem+i+")",apocYield);
-                    parApoc.Add("pAssociate"+nomeElem+i, propSensAssoc[chiavi[i]].PropAssoc);
-                    parStr.Add("p"+nomeElem+i, chiavi[i]);
-                }
+                    callApoc.Add("apoc.do.when("+nomeElem+"[p_"+nomeElem+i+"] IS NOT NULL, \'CALL "+ apoc + "(" + nomeElem + ", pAssoc_"+nomeElem+i+") YIELD "+apocYield+" RETURN "+apocYield+"\', \'RETURN \"nulla\" AS risultato\',{"+nomeElem+":"+nomeElem+", pAssoc_"+nomeElem+i+":pAssoc_"+nomeElem+i+",p_"+nomeElem+i+":p_"+nomeElem+i+"} )",el);
+                
             }
         }
 
