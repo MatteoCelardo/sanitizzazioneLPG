@@ -17,7 +17,8 @@ public interface IPers
     /// </remarks>
     /// <param name="path">Percorso al file JSON con le istruzioni di sanitizzazione</param>
     /// <exception cref="PersExcDupl">
-    /// Eccezione sollevata nel caso una catena contenga uno o più id duplicati
+    /// Eccezione sollevata nel caso una catena contenga due elementi dello stesso tipo 
+    /// in fila (nodo-nodo, relazione-relazione)
     /// </exception>
     /// <exception cref="PersExcNotFound">
     /// Eccezione sollevata nel caso un id specificato in una catena non sia presente

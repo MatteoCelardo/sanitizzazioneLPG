@@ -88,9 +88,6 @@ public class Pers : IPers
         {
             for(int i = 0; i < dati.catene.Length; i++)
             {
-                // verifica che una catena non contenga più volte lo stesso id
-                if(dati.catene[i].Length != dati.catene[i].Distinct().Count())
-                    throw new PersExcDupl("la catena numero " + i + " contiene id duplicati.");
 
                 _catene.Add(new Catena());
                 // inserimento del primo elemento della catena per semplificare le 
