@@ -136,14 +136,20 @@ public class Pers : IPers
 
     public IList<ValidationError> Valida(string path){
         _json = File.ReadAllText(path);
-        // lettura del file da validare
-        JObject valJSON = JObject.Parse(_json);
-        //inizializzazione della lista che conterrà gli eventuali errori riscontrati nel parsing
-        IList<ValidationError> errori = new List<ValidationError>();
 
-        valJSON.IsValid(_schVal, out errori);
+        try{
+            // lettura del file da validare
+            JObject valJSON = JObject.Parse(_json);
+            //inizializzazione della lista che conterrà gli eventuali errori riscontrati nel parsing
+            IList<ValidationError> errori = new List<ValidationError>();
 
-        return errori;
+            valJSON.IsValid(_schVal, out errori);
+            return errori;
+        }
+        catch(Exception e)
+        {
+            throw new PersExc(e.Message);
+        }
             
     }
     #endregion

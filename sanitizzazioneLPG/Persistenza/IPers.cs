@@ -43,6 +43,9 @@ public interface IPers
     /// <returns>
     /// Ritorna una lista vuota se non ci sono errori, la lista degli errori altrimenti 
     /// </returns>
+    /// <exception cref="PersExc">
+    /// genera una <c>PersExc</c> se vengono sollevate eccezioni dal parser JSON
+    /// </exception>
     IList<ValidationError> Valida(string path);
     
     /// <summary>
