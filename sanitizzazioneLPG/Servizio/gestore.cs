@@ -118,14 +118,20 @@ public class Gestore : IServizio
     
     public string ValidaJSON(string path)
     {
-        IList<ValidationError> err = _pers.Valida(path);
         string ret = "";
+        try{
+            IList<ValidationError> err = _pers.Valida(path);
 
-        if(err.Count > 0)
+            if(err.Count > 0)
+            {
+                ret = $"Il file al percorso {path} non rispetta lo schema predefinito.\n Errori: \n";
+                foreach(ValidationError e in err)
+                    ret += "\t- Linea numero: " + e.LineNumber + " - Percorso: " +  e.Path +  " - Valore: " +  e.Value + "\n\t\tErrore: " +  e.Message +  "\n----\n";
+            }
+        }
+        catch(PersExc e)
         {
-            ret = $"Il file al percorso {path} non rispetta lo schema predefinito.\n Errori: \n";
-            foreach(ValidationError e in err)
-                ret += "\t- Linea numero: " + e.LineNumber + " - Percorso: " +  e.Path +  " - Valore: " +  e.Value + "\n\t\tErrore: " +  e.Message +  "\n----\n";
+            ret = e.Message;
         }
         return ret;
     }
