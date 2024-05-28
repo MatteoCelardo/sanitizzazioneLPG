@@ -11,8 +11,8 @@
   <ItemGroup>
     <Folder Include="Dominio/" />
     <AvaloniaResource Include="Risorse/**" />
+    <None Remove="Risorse/StileSceltaDB.xaml" />
     <Folder Include="Persistenza/" />
-    <Folder Include="ModelliViste/" />
   </ItemGroup>
 
   <ItemGroup>
