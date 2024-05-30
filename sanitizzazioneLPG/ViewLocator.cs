@@ -14,6 +14,7 @@ public class ViewLocator : IDataTemplate
             return null;
         
         var name = data.GetType().FullName!.Replace("ModelloVista", "Vista", StringComparison.Ordinal);
+        name = name.Replace("ModelliViste", "Viste", StringComparison.Ordinal);
         var type = Type.GetType(name);
 
         if (type != null)
