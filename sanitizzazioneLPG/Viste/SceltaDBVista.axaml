@@ -43,15 +43,10 @@
                   Text = "{Binding Uri}">
             </TextBox>
 
-            <TextBlock
-                  Classes = "TextErr"
-                  Text = "{Binding Err}"
-            />
-
             <Button
-                  Classes = "Conferma"
-                  Content = "CONFERMA"
-                  Command = "{Binding ConnettiDBCommand}"
+                  Classes = "Connessione"
+                  Content = "CONNESSIONE"
+                  Command = "{Binding ConnessioneCommand}"
             />
       </StackPanel>
   </DockPanel>

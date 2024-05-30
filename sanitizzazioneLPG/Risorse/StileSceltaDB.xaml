@@ -28,14 +28,8 @@
         <Setter Property="FontSize" Value="26"/>
         <Setter Property="FontWeight" Value="Medium"/>
     </Style>
-
-    <Style Selector = "TextBlock.TextErr">
-        <Setter Property="HorizontalAlignment" Value="Center"/>
-        <Setter Property="FontSize" Value="18"/>
-        <Setter Property="Foreground" Value="IndianRed"/>
-    </Style>
     
-    <Style Selector = "Button.Conferma">
+    <Style Selector = "Button.Connessione">
         <Setter Property="HorizontalAlignment" Value="Stretch"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>

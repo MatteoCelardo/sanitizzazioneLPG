@@ -20,17 +20,17 @@ public partial class SceltaDBModelloVista : ModelloVistaBase
     [ObservableProperty]
     // permette di rieseguire la canExecute su LoginCommand ogni volta che 
     // _uri cambia valore
-    [NotifyCanExecuteChangedFor(nameof(ConnettiDBCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ConnessioneCommand))]
     private string? _uri;
 
     // username dell'utente del DB
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(ConnettiDBCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ConnessioneCommand))]
     private string? _usr;
 
     // password dell'utente del DB
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(ConnettiDBCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ConnessioneCommand))]
     private string? _pwd;
 
     [ObservableProperty]
@@ -51,8 +51,9 @@ public partial class SceltaDBModelloVista : ModelloVistaBase
     // CanExecute permette di specificare la funzione che determina se la funzione 
     // sia eseguibile o meno
     [RelayCommand(CanExecute = nameof(DatiPresenti))]
-    private void ConnettiDB()
+    private void Connessione()
     {
+        _s.ConnettiDB(Usr,Pwd,Uri);
     }
 
     private bool DatiPresenti()
