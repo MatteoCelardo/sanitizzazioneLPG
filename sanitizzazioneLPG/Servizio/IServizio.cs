@@ -1,10 +1,16 @@
-﻿using Avalonia.Controls;
-using MsBox.Avalonia.Enums;
+﻿using MsBox.Avalonia.Enums;
 
 namespace sanitizzazioneLPG.Servizio;
 
 public interface IServizio
 {
+    /// <summary>
+    /// effettua la connessione al database specificato per la sanitizzazione
+    /// </summary>
+    /// <param name="usr">nome utente del DB</param>
+    /// <param name="pwd">password relativa a <c>usr</c></param>
+    /// <param name="uri">uri per raggiungere il DB</param>
+    void ConnettiDB(string usr, string pwd, string uri);
     /// <summary>
     /// importa all'interno della persistenza il contenuto del file JSON con 
     /// la specifica degli elementi da sanitizzare nel DB

@@ -18,6 +18,9 @@ namespace sanitizzazioneLPG.Servizio;
 public class Gestore : IServizio
 {
     private readonly IPers _pers;
+    private string _usr;
+    private string _pwd;
+    private string _uri;
 
     #region singleton
     private static Gestore? _istanza = null;
@@ -26,6 +29,9 @@ public class Gestore : IServizio
     private Gestore()
     {
         this._pers = Pers.Istanza;
+        _usr = "";
+        _pwd = "";
+        _uri = "";
     }
 
     public static Gestore Istanza 
@@ -34,11 +40,34 @@ public class Gestore : IServizio
         {
             lock(_mutex)
             {
-                return _istanza ?? new Gestore();
+                if(_istanza == null)
+                    _istanza = new Gestore();
+                return _istanza;
             }
         }
     }
     #endregion
+
+    
+    public async void ConnettiDB(string usr, string pwd, string uri)
+    {
+        try 
+        {
+            BoltGraphClient? client = new BoltGraphClient("bolt://"+uri+":7687", usr, pwd);
+            await client.ConnectAsync();
+
+            this.MostraMsg("Info", "Credenziali e URI inseiri corretti. È ora possibile procedere con la sanitizzazione.",Icon.Info,ButtonEnum.Ok);
+
+            _usr = usr;
+            _pwd = pwd;
+            _uri = uri;
+        }
+        catch (Exception e)
+        {
+            this.MostraMsg("Errore","Non è stato possibile connettersi al DB con URI \"" + uri 
+            + "\". Il DB non è raggiungibile o le credenziali inserite non sono corrette",Icon.Error,ButtonEnum.Ok);
+        }
+    }
 
     public void CancellaJSON()
     {
@@ -50,25 +79,32 @@ public class Gestore : IServizio
     {
         string err;
         bool ret = false;
-        try
+        if (!string.IsNullOrEmpty(_uri) && !string.IsNullOrEmpty(_usr) && !string.IsNullOrEmpty(_uri))
         {
-            err = this.ValidaJSON(path);
-            if (string.IsNullOrEmpty(err))
+            try
             {
-                this._pers.Importa();
-                this.MostraMsg("Info", "Importazione del file JSON portata a termine correttamente",Icon.Info,ButtonEnum.Ok);
-                ret = true;
+                err = this.ValidaJSON(path);
+                if (string.IsNullOrEmpty(err))
+                {
+                    this._pers.Importa();
+                    this.MostraMsg("Info", "Importazione del file JSON portata a termine correttamente",Icon.Info,ButtonEnum.Ok);
+                    ret = true;
+                }
+                else 
+                    this.MostraMsg("Errore", err,Icon.Error,ButtonEnum.Ok);
+
             }
-            else 
-                this.MostraMsg("Errore", err,Icon.Error,ButtonEnum.Ok);
-            
+            catch (PersExc e)
+            {
+
+                if (e is PersExcDupl || e is PersExcNotFound)
+                    this.CancellaJSON();
+                this.MostraMsg("Errore", e.Message,Icon.Error,ButtonEnum.Ok);
+            }
         }
-        catch (PersExc e)
+        else 
         {
-            
-            if (e is PersExcDupl || e is PersExcNotFound)
-                this.CancellaJSON();
-            this.MostraMsg("Errore", e.Message,Icon.Error,ButtonEnum.Ok);
+            this.MostraMsg("Errore", "Non è possibile importare file JSON prima di aver effettuato la connessione ad un DB",Icon.Error,ButtonEnum.Ok);
         }
 
         return ret;
@@ -82,10 +118,10 @@ public class Gestore : IServizio
 
         switch(s)
         {
-            case EnumSanit.CANC: 
+            case EnumSanit.CANC:
                 try 
                 {
-                    BoltGraphClient? client = new BoltGraphClient("bolt://localhost:7687", "neo4j", "tesiCelardo2024");
+                    BoltGraphClient? client = new BoltGraphClient("bolt://"+_uri+":7687", _usr, _pwd);
                     await client.ConnectAsync();
 
                     // generazione ed esecuzione di tutte le query in thread paralleli.
@@ -657,6 +693,7 @@ public class Gestore : IServizio
         }
 
     }
+
     #endregion
 
 }
