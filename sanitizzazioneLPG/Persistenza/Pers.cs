@@ -45,7 +45,9 @@ public class Pers : IPers
         {
             lock(_mutex)
             {
-                return _istanza ?? new Pers();
+                if(_istanza == null)
+                    _istanza = new Pers();
+                return _istanza;
             }
         }
     }
