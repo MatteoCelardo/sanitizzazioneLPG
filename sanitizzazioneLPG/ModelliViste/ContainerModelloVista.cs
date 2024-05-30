@@ -33,7 +33,7 @@ public partial class ContainerModelloVista : ModelloVistaBase
         _panAperto = false;
         _templates = new ObservableCollection<TemplateOggPannello>(
             [
-                new TemplateOggPannello(typeof(SceltaDBModelloVista), "LockRegular", "Seleziona LPG"),
+                new TemplateOggPannello(typeof(SceltaDBModelloVista), "LockRegular", "Seleziona DB"),
                 new TemplateOggPannello(typeof(HomeModelloVista), "FingerprintRegular", "Sanitizzazione"),
             ]);
         OggSel = Templates.First(vm => vm.Modello == typeof(SceltaDBModelloVista));
