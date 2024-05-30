@@ -1,0 +1,61 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:sanitizzazioneLPG.ModelliViste"
+        xmlns:models="clr-namespace:sanitizzazioneLPG.Dominio"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:DataType="vm:ContainerModelloVista"
+        Icon="/Risorse/avalonia-logo.ico"
+        x:Class="sanitizzazioneLPG.Viste.ContainerVista"
+        Title="ContainerVista">
+  
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <vm:ContainerModelloVista/>
+    </Design.DataContext>
+
+    <Window.Styles>
+        <StyleInclude Source="/Risorse/StileContainer.xaml" />
+    </Window.Styles>
+    
+
+    <SplitView 
+        IsPaneOpen="{Binding PanAperto}">
+            <SplitView.Pane>
+                <StackPanel
+                    Classes="StackPannello">
+                        <Button 
+                            Classes="TogglePannello"
+                            Command="{Binding TogglePanCommand}">
+                                <PathIcon Height="11" Data="{StaticResource LineHorizontal3Regular}" />
+                        </Button>
+                        <ListBox 
+                            Classes = "VociPannello"
+                            ItemsSource="{Binding Templates}"
+                            SelectedItem="{Binding OggSel}">
+                                <ListBox.Styles>
+                                    <Style Selector="ListBoxItem">
+                                        <Setter Property="Padding" Value="12 8"></Setter>
+                                    </Style>
+                                </ListBox.Styles>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type models:TemplateOggPannello}">
+                                        <StackPanel Spacing="17" Orientation="Horizontal">
+                                            <PathIcon Data="{Binding Icona}" Width="14" />
+                                            <TextBlock Text="{Binding Etichetta}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                        </ListBox>
+              </StackPanel>
+            </SplitView.Pane>
+
+            <SplitView.Content>
+                <Border>
+                        <TransitioningContentControl Content="{Binding PagCorrente}" />
+                </Border>
+            </SplitView.Content>
+  </SplitView>
+</Window>

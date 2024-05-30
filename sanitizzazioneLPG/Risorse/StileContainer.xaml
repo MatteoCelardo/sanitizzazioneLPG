@@ -1,0 +1,63 @@
+<Styles
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- stile dello spli view -->
+    <Style Selector="SplitView">
+        <Setter Property="Background" Value="#FFFFFF"/>
+        <Setter Property="PaneBackground" Value="#1E1E1E"/>
+        <Setter Property="CompactPaneLength" Value="45"/>
+        <Setter Property="DisplayMode" Value="CompactInline"/>
+        <Setter Property="OpenPaneLength" Value="300"/>
+    </Style>
+    <!-- ********************* -->
+
+    <!-- stile dello stack panel con le voci del menù -->
+    <Style Selector="StackPanel.StackPannello">
+        <Setter Property="Orientation" Value="Vertical"/>
+        <Setter Property="Spacing" Value="5"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="VerticalAlignment" Value="Top"/>
+    </Style>
+    <!-- ******************************************** -->
+
+    <!-- stile del bottone usato per aprire e chiudere il menù -->
+    <Style Selector="Button.TogglePannello">
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="Width" Value="32"/>
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Margin" Value="7 10"/>
+    </Style>
+    <!-- ***************************************************** -->
+
+    <Style Selector="ListBox.VociPannello">
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Margin" Value="2 0 -100 0" />
+    </Style>
+
+    <Style Selector="SplitView.Content Border">
+        <Setter Property="CornerRadius" Value="12 0 0 0"/>
+    </Style>
+
+    <!-- stili comuni a tutti i bottoni -->
+        
+    <Style Selector="Button">
+        <Setter Property="Background" Value="#61ABC6"/>
+        <Setter Property="Foreground" Value="#000000"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        
+    </Style>
+
+    <Style Selector="Button:disabled /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Foreground" Value="#CFDDF0"/>
+        <Setter Property="Background" Value="#A4BBDA"/>
+    </Style>
+
+    <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="#BCD2EE"/>
+    </Style>
+
+    <!-- ***************** -->
+
+</Styles>
