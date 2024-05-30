@@ -1,13 +1,11 @@
-<Window xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:sanitizzazioneLPG.ModelliViste"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="sanitizzazioneLPG.Viste.SceltaDBVista"
-        x:DataType="vm:SceltaDBModelloVista"
-        Icon="/Risorse/avalonia-logo.ico"
-        Title="SceltaDB">
+        x:DataType="vm:SceltaDBModelloVista">
 
   <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
@@ -15,7 +13,46 @@
         <vm:SceltaDBModelloVista/>
   </Design.DataContext>
 
-  <Window.Styles>
+
+  <UserControl.Styles>
         <StyleInclude Source="/Risorse/StileSceltaDB.xaml" />
-  </Window.Styles>
-</Window>
+  </UserControl.Styles>
+
+  <DockPanel>
+      <TextBlock 
+            Classes = "Titolo"
+            Text = "Inserimento credenziali DB"
+      />
+
+      <StackPanel>
+            <TextBox
+                  Classes = "ParamDB"
+                  Watermark = "Username"
+                  Text = "{Binding Usr}">
+            </TextBox>
+            <TextBox
+                  Classes = "ParamDB"
+                  Watermark = "Password"
+                  AcceptsReturn = "False"
+                  Text = "{Binding Pwd}"
+                  PasswordChar = "*">
+            </TextBox>
+            <TextBox
+                  Classes = "ParamDB"
+                  Watermark = "Uri"
+                  Text = "{Binding Uri}">
+            </TextBox>
+
+            <TextBlock
+                  Classes = "TextErr"
+                  Text = "{Binding Err}"
+            />
+
+            <Button
+                  Classes = "Conferma"
+                  Content = "CONFERMA"
+                  Command = "{Binding ConnettiDBCommand}"
+            />
+      </StackPanel>
+  </DockPanel>
+</UserControl>

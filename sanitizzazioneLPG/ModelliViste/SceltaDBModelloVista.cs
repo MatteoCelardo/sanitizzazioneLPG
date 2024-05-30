@@ -1,12 +1,40 @@
 ﻿using System;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using sanitizzazioneLPG.Servizio;
+using sanitizzazioneLPG.Viste;
 
 namespace sanitizzazioneLPG.ModelliViste;
 
-public class SceltaDBModelloVista : ObservableObject
+public partial class SceltaDBModelloVista : ModelloVistaBase
 {
     private readonly IServizio _s;
+
+    // URI usata per raggiungere il DB
+
+    // permette di notificare alla view che il valore di _uri è cambiato e va 
+    // aggiornato tramite Uri
+    [ObservableProperty]
+    // permette di rieseguire la canExecute su LoginCommand ogni volta che 
+    // _uri cambia valore
+    [NotifyCanExecuteChangedFor(nameof(ConnettiDBCommand))]
+    private string? _uri;
+
+    // username dell'utente del DB
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(ConnettiDBCommand))]
+    private string? _usr;
+
+    // password dell'utente del DB
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(ConnettiDBCommand))]
+    private string? _pwd;
+
+    [ObservableProperty]
+    private string? _err;
 
     public SceltaDBModelloVista(IServizio s)
     {
@@ -16,5 +44,21 @@ public class SceltaDBModelloVista : ObservableObject
     public SceltaDBModelloVista()
     {
         _s = Gestore.Istanza;
+    }
+
+    // permette di creare un comando richiamabile dalla view che esegue questa funzione. 
+    // il nome del comando sarà sempre nomeFunzioneCommand.
+    // CanExecute permette di specificare la funzione che determina se la funzione 
+    // sia eseguibile o meno
+    [RelayCommand(CanExecute = nameof(DatiPresenti))]
+    private void ConnettiDB()
+    {
+    }
+
+    private bool DatiPresenti()
+    {
+        return !string.IsNullOrEmpty(Uri) 
+            && !string.IsNullOrEmpty(Usr)
+            && !string.IsNullOrEmpty(Pwd);
     }
 }

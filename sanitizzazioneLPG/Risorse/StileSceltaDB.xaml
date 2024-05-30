@@ -2,36 +2,45 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <Style Selector="Window">
-            <Setter Property="Background" Value="#D0D0D0"/>
+    <Style Selector = "StackPanel">
+        <Setter Property="Margin" Value="10"/>
     </Style>
-        
-    <!-- stile dei bordi -->
-    <Style Selector="Border">
-        <Setter Property="BorderBrush" Value="#9D9D9D"/>
-        <Setter Property="BorderThickness" Value="2"/>
-        <Setter Property="CornerRadius" Value="3"/>
+
+    <Style Selector = "StackPanel">
+        <Setter Property="Spacing" Value="10"/>
     </Style>
-    <!-- *************** -->
-        
-    <!-- stile dei bottoni -->
-        
-    <Style Selector="Button">
-        <Setter Property="Background" Value="#8FA89E"/>
-        <Setter Property="Foreground" Value="#000000"/>
-        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+
+    <Style Selector = "TextBox.ParamDB">
+        <Setter Property="Padding" Value="10"/>
+        <Setter Property="Margin" Value="10"/>
+        <Setter Property="Height" Value="50"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="AcceptsReturn" Value="False"/>
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="MaxLines" Value="1"/>
+    </Style>
+
+    <Style Selector = "TextBlock.Titolo">
+        <Setter Property="DockPanel.Dock" Value="Top"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Margin" Value="0 10 0 20"/>
+        <Setter Property="FontSize" Value="26"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+    </Style>
+
+    <Style Selector = "TextBlock.TextErr">
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="FontSize" Value="18"/>
+        <Setter Property="Foreground" Value="IndianRed"/>
+    </Style>
+    
+    <Style Selector = "Button.Conferma">
         <Setter Property="HorizontalAlignment" Value="Stretch"/>
-        
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Margin" Value="0 10 0 0"/>
+        <Setter Property="FontSize" Value="18"/>
+        <Setter Property="Height" Value="50"/>
     </Style>
-
-    <Style Selector="Button:disabled /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Foreground" Value="#DDE1CD"/>
-        <Setter Property="Background" Value="#C5CDC4"/>
-    </Style>
-
-    <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="#AEBBB7"/>
-    </Style>
-
-    <!-- ***************** -->
 </Styles>
