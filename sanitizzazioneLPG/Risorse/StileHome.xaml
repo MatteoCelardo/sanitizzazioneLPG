@@ -14,26 +14,7 @@
         </Style>
         <!-- *************** -->
         
-        <!-- stile dei bottoni -->
         
-        <Style Selector="Button">
-            <Setter Property="Background" Value="#8FA89E"/>
-            <Setter Property="Foreground" Value="#000000"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="HorizontalAlignment" Value="Stretch"/>
-            
-        </Style>
-
-        <Style Selector="Button:disabled /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Foreground" Value="#DDE1CD"/>
-            <Setter Property="Background" Value="#C5CDC4"/>
-        </Style>
-
-        <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="#AEBBB7"/>
-        </Style>
-
-        <!-- ***************** -->
 
         <!-- stile degli scroll viewer -->
         

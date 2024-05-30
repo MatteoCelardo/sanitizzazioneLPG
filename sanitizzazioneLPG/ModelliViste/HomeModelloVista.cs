@@ -12,7 +12,7 @@ using sanitizzazioneLPG.Servizio;
 
 namespace sanitizzazioneLPG.ModelliViste;
 
-public partial class HomeModelloVista : ObservableObject
+public partial class HomeModelloVista : ModelloVistaBase
 {
     private readonly IServizio _s;
     
