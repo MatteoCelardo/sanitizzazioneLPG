@@ -51,16 +51,19 @@ public class Gestore : IServizio
     
     public async void ConnettiDB(string usr, string pwd, string uri)
     {
+        // se l'uri specifica una porta, si lascia quella; altrimenti viene impostata 
+        // la porta 7687 di default
+        string uriPorta = uri + (uri.Contains(':') ? "" : ":7687");
         try 
         {
-            BoltGraphClient? client = new BoltGraphClient("bolt://"+uri+":7687", usr, pwd);
+            BoltGraphClient? client = new BoltGraphClient("bolt://"+uriPorta, usr, pwd);
             await client.ConnectAsync();
 
             this.MostraMsg("Info", "Credenziali e URI inseiri corretti. È ora possibile procedere con la sanitizzazione.",Icon.Info,ButtonEnum.Ok);
 
             _usr = usr;
             _pwd = pwd;
-            _uri = uri;
+            _uri = uriPorta;
         }
         catch (Exception e)
         {
@@ -121,7 +124,7 @@ public class Gestore : IServizio
             case EnumSanit.CANC:
                 try 
                 {
-                    BoltGraphClient? client = new BoltGraphClient("bolt://"+_uri+":7687", _usr, _pwd);
+                    BoltGraphClient? client = new BoltGraphClient("bolt://"+_uri, _usr, _pwd);
                     await client.ConnectAsync();
 
                     // generazione ed esecuzione di tutte le query in thread paralleli.
