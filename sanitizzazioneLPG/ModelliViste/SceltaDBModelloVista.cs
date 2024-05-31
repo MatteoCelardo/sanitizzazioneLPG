@@ -33,9 +33,6 @@ public partial class SceltaDBModelloVista : ModelloVistaBase
     [NotifyCanExecuteChangedFor(nameof(ConnessioneCommand))]
     private string? _pwd;
 
-    [ObservableProperty]
-    private string? _err;
-
     public SceltaDBModelloVista(IServizio s)
     {
         _s = s;
