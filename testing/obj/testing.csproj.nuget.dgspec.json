@@ -1,0 +1,72 @@
+{
+  "format": 1,
+  "restore": {
+    "/home/matteo/Documents/università/appunti/terzoAnno/tesi/sanitizzazioneLPG/testing/testing.csproj": {}
+  },
+  "projects": {
+    "/home/matteo/Documents/università/appunti/terzoAnno/tesi/sanitizzazioneLPG/testing/testing.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/matteo/Documents/università/appunti/terzoAnno/tesi/sanitizzazioneLPG/testing/testing.csproj",
+        "projectName": "testing",
+        "projectPath": "/home/matteo/Documents/università/appunti/terzoAnno/tesi/sanitizzazioneLPG/testing/testing.csproj",
+        "packagesPath": "/home/matteo/.nuget/packages/",
+        "outputPath": "/home/matteo/Documents/università/appunti/terzoAnno/tesi/sanitizzazioneLPG/testing/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/matteo/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Neo4jClient": {
+              "target": "Package",
+              "version": "[5.1.15, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/home/matteo/dotnet/sdk/8.0.204/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
