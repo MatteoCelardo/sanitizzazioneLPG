@@ -1,4 +1,6 @@
 sanitizzazioneLPG/bin/*
 sanitizzazioneLPG/obj/*
+testPerf/bin/*
+testPerf/obj/*
 LICENSE
 credenzialiDB_test.txt
