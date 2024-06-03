@@ -94,22 +94,43 @@ public class Generatore
     /// </summary>
     /// <param name="percEtic">percentuale di etichette da usare</param>
     /// <param name="percProp">percentuale di proprietà da usare</param>
+    /// <remarks>
+    /// A prescindere dalla percentuale specificata, il numero minimo di etichette e 
+    /// proprietà sarà 1 
+    /// </remarks>
     public async void FileNodi(int percEtic, int percProp)
-    {}
+    {
+        decimal maxEtic = _eticNodi.Count * percEtic / 100 >= 1 ? Math.Floor((decimal)_eticNodi.Count * percEtic / 100) : 1;  
+        decimal maxProp = _propNodi.Count * percProp / 100 >= 1 ? Math.Floor((decimal)_propNodi.Count * percProp / 100) : 1;  
+        string idJSON;
+
+        for(int i = 0; i < maxEtic; i++)
+        {
+            idJSON = "{\"IdNodo\":{\"Etichette\" : [\"" + _eticNodi[i] + "\"]}}";
+        }
+    }
 
     /// <summary>
-    /// genera un file d'input con gli oggetti JSON per i singoli nodi
+    /// genera un file d'input con gli oggetti JSON per le singole relazioni
     /// </summary>
     /// <param name="percEtic">percentuale di etichette da usare</param>
     /// <param name="percProp">percentuale di proprietà da usare</param>
+    /// <remarks>
+    /// A prescindere dalla percentuale specificata, il numero minimo di etichette e 
+    /// proprietà sarà 1 
+    /// </remarks>
     public async void FileRel(int percEtic, int percProp)
     {}
 
     /// <summary>
-    /// genera un file d'input con gli oggetti JSON per i singoli nodi
+    /// genera un file d'input con gli oggetti JSON per le singole catene
     /// </summary>
     /// <param name="percEtic">percentuale di etichette da usare</param>
     /// <param name="percProp">percentuale di proprietà da usare</param>
+    /// <remarks>
+    /// A prescindere dalla percentuale specificata, il numero minimo di etichette e 
+    /// proprietà sarà 1 
+    /// </remarks>
     public async void FileCat(int percEtic, int percProp)
     {}
 }
