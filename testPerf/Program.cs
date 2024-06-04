@@ -8,5 +8,6 @@ class Program
 
         g.GeneraFileUnNodo();
         g.GeneraFileUnaRel();
+        g.GeneraFileCatene(10);
     }
 }

@@ -10,6 +10,8 @@ public class Generatore
     private List<string> _eticRel;
     private List<string> _propNodi;
     private List<string> _propRel;
+    // numero di elementi minimo per ogni catena
+    private const int EL_PER_CAT = 2;
 
     #region costruttore
     public Generatore()
@@ -146,10 +148,37 @@ public class Generatore
 
         for(int i = 1; i <= _propRel.Count; i++)
         {
-            rel = "{\"NodiSensibili\" : [";
+            rel = "{\"RelSensibili\" : [";
             rel += this.GeneraSingolaRel(0,(double)i/_propRel.Count * 100);
             rel += "]\n}";
             File.WriteAllText("./fileInput/Rel/FileSingoloNodo_0-"+Math.Round((double)i/_propRel.Count * 100,2)+".json",rel);
+        }
+    }
+
+    public void GeneraFileCatene(int numCat)
+    {
+        for(int j = 0; j < numCat; j++)
+        {
+            string file = "{\"NodiSensibili\" : ["; 
+            for(int i = 1; i <= EL_PER_CAT+j-Math.Floor((double)(EL_PER_CAT+j)/2); i++)
+                file += this.GeneraSingoloNodo(100,100,"\"IdCat\" : \"idNodo"+i+"\",\n")+",\n";
+
+            file = file.Remove(file.Length - 2, 2) + "],\n\"RelSensibili\" : [";
+
+            for(int i = 1; i <= Math.Floor((double)(EL_PER_CAT+j)/2); i++)
+                file += this.GeneraSingolaRel(100,100,"\"IdCat\" : \"idRel"+i+"\",\n")+",\n";
+
+            file = file.Remove(file.Length - 2, 2) + "],\n\"Catene\" : [[";
+            for(int i = 1; i <= Math.Floor((double)(EL_PER_CAT+j)/2); i++)
+                file += "\"idNodo"+i+"\", \"idRel"+i+"\", ";
+            
+            if((EL_PER_CAT+j)%2 == 1)
+                file += "\"IdNodo"+(Math.Floor((double)(EL_PER_CAT+j)/2)+1)+"\"";
+            else
+                file = file.Remove(file.Length - 2,2);
+
+            file += "]]\n}";
+            File.WriteAllText("./fileInput/Cat/FileCatena_"+j+".json",file);
         }
     }
 
@@ -167,11 +196,11 @@ public class Generatore
     /// <returns>
     /// ritorna una stringa che contiene l'oggetto JSON
     /// </returns>
-    private string GeneraSingoloNodo(double percEtic, double percProp)
+    private string GeneraSingoloNodo(double percEtic, double percProp, string idCat = "")
     {
         double maxEtic = _eticNodi.Count * percEtic / 100 >= 1 ? Math.Round((double)_eticNodi.Count * percEtic / 100,5) : 1;  
         double maxProp = _propNodi.Count * percProp / 100 >= 1 || _propNodi.Count == 0 ? Math.Round((double)_propNodi.Count * percProp / 100,5) : 1;  
-        string oggJSON = "{\"IdNodo\":\n\t{\"Etichette\" : [";
+        string oggJSON = "{"+idCat+"\"IdNodo\":\n\t{\"Etichette\" : [";
 
         #region costruzione dell'oggetto identificativo
         for(int i = 0; i < maxEtic; i++)
@@ -240,11 +269,11 @@ public class Generatore
     /// <returns>
     /// ritorna una stringa che contiene l'oggetto JSON
     /// </returns>
-    private string GeneraSingolaRel(double percEtic, double percProp)
+    private string GeneraSingolaRel(double percEtic, double percProp, string idCat = "")
     {
         double maxEtic = _eticRel.Count * percEtic / 100 >= 1 ? Math.Round((double)_eticRel.Count * percEtic / 100,5) : 1;  
         double maxProp = _propRel.Count * percProp / 100 >= 1 || _propRel.Count == 0 ? Math.Round((double)_propRel.Count * percProp / 100,5) : 1;  
-        string oggJSON = "{\"IdRel\":\n\t{\"Etichette\" : [";
+        string oggJSON = "{"+idCat+"\"IdRel\":\n\t{\"Etichette\" : [";
 
         #region costruzione dell'oggetto identificativo
         for(int i = 0; i < maxEtic; i++)
@@ -295,16 +324,4 @@ public class Generatore
         return oggJSON;
 
     }
-
-    /// <summary>
-    /// genera un file d'input con gli oggetti JSON per le singole catene
-    /// </summary>
-    /// <param name="percEtic">percentuale di etichette da usare</param>
-    /// <param name="percProp">percentuale di proprietà da usare</param>
-    /// <remarks>
-    /// A prescindere dalla percentuale specificata, il numero minimo di etichette e 
-    /// proprietà sarà 1 
-    /// </remarks>
-    public void FileCat(int percEtic, int percProp)
-    {}
 }
