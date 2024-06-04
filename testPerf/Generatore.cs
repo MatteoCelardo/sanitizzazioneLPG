@@ -252,7 +252,7 @@ public class Generatore
 
         oggJSON += "\n\t\t}\n\t}";
 
-        return oggJSON;
+        return oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON;
 
     }
 
@@ -321,7 +321,7 @@ public class Generatore
 
         oggJSON += "\n\t\t}\n\t}";
 
-        return oggJSON;
+        return oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON;
 
     }
 }
