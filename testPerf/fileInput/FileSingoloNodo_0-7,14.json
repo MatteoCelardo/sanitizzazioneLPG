@@ -1,0 +1,11 @@
+{"NodiSensibili" : [{"IdNodo":
+	{"Etichette" : ["User"],
+	"PropStr" : {"profile_image_url" : "test"},
+	"PropNum" : {"profile_image_url" : 1}},
+	"NodoSens" : false,
+	"DaSanitizzare" : { 
+		"EtichetteSens" : ["User"],
+		"PropSempreSens" : ["profile_image_url"]
+		}
+	}]
+}

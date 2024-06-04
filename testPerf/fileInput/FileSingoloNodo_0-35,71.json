@@ -1,0 +1,19 @@
+{"NodiSensibili" : [{"IdNodo":
+	{"Etichette" : ["User"],
+	"PropStr" : {"profile_image_url" : "test", "following" : "test", "url" : "test", "location" : "test", "followers" : "test"},
+	"PropNum" : {"profile_image_url" : 1, "following" : 1, "url" : 1, "location" : 1, "followers" : 1}},
+	"NodoSens" : false,
+	"DaSanitizzare" : { 
+		"EtichetteSens" : ["User"],
+		"PropSempreSens" : ["profile_image_url", "following", "url", "location", "followers"],
+		"PropSensAssoc" : {
+			"profile_image_url" : {
+				"PropAssoc" : ["following", "url", "location", "followers"],
+				"SanitizzareProp" : false},
+			"following" : {
+				"PropAssoc" : ["url", "location", "followers"],
+				"SanitizzareProp" : true}
+			}
+		}
+	}]
+}

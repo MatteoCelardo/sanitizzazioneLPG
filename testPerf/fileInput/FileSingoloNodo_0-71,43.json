@@ -1,0 +1,19 @@
+{"NodiSensibili" : [{"IdNodo":
+	{"Etichette" : ["User"],
+	"PropStr" : {"profile_image_url" : "test", "following" : "test", "url" : "test", "location" : "test", "followers" : "test", "screen_name" : "test", "name" : "test", "statuses" : "test", "created_at" : "test", "id" : "test"},
+	"PropNum" : {"profile_image_url" : 1, "following" : 1, "url" : 1, "location" : 1, "followers" : 1, "screen_name" : 1, "name" : 1, "statuses" : 1, "created_at" : 1, "id" : 1}},
+	"NodoSens" : false,
+	"DaSanitizzare" : { 
+		"EtichetteSens" : ["User"],
+		"PropSempreSens" : ["profile_image_url", "following", "url", "location", "followers", "screen_name", "name", "statuses", "created_at", "id"],
+		"PropSensAssoc" : {
+			"profile_image_url" : {
+				"PropAssoc" : ["following", "url", "location", "followers", "screen_name", "name", "statuses", "created_at", "id"],
+				"SanitizzareProp" : false},
+			"following" : {
+				"PropAssoc" : ["url", "location", "followers", "screen_name", "name", "statuses", "created_at", "id"],
+				"SanitizzareProp" : true}
+			}
+		}
+	}]
+}
