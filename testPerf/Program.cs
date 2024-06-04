@@ -7,5 +7,6 @@ class Program
         Generatore g = new Generatore();
 
         g.GeneraFileUnNodo();
+        g.GeneraFileUnaRel();
     }
 }
