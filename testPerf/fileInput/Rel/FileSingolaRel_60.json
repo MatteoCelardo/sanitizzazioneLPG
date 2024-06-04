@@ -1,0 +1,61 @@
+{"RelSensibili" : [{"IdRel":
+	{"Etichetta" : "FOLLOWS"}, 
+	"RelSens" : true
+		},
+{"IdRel":
+	{"Etichetta" : "CONTAINS"}, 
+	"RelSens" : true
+		},
+{"IdRel":
+	{"Etichetta" : "MENTIONS"}, 
+	"RelSens" : true
+		},
+{"IdRel":
+	{"Etichetta" : "MENTIONS"}, 
+	"RelSens" : true
+		},
+{"IdRel":
+	{"Etichetta" : "RETWEETS"}, 
+	"RelSens" : true
+		},
+{"IdRel":
+	{"Etichetta" : "POSTS"}, 
+	"RelSens" : true
+		},
+{"IdRel":
+	{"Etichetta" : "RETWEETS"}, 
+	"RelSens" : true
+		},
+{"IdRel":
+	{"Etichetta" : "FOLLOWS"}, 
+	"RelSens" : true
+		},
+{"IdRel":
+	{"Etichetta" : "POSTS"}, 
+	"RelSens" : true
+		},
+{"IdRel":
+	{"Etichetta" : "REPLY_TO"}, 
+	"RelSens" : true
+		},
+{"IdRel":
+	{"Etichetta" : "CONTAINS"}, 
+	"RelSens" : true
+		},
+{"IdRel":
+	{"Etichetta" : "POSTS"}, 
+	"RelSens" : true
+		},
+{"IdRel":
+	{"Etichetta" : "FOLLOWS"}, 
+	"RelSens" : true
+		},
+{"IdRel":
+	{"Etichetta" : "POSTS"}, 
+	"RelSens" : true
+		},
+{"IdRel":
+	{"Etichetta" : "RETWEETS"}, 
+	"RelSens" : true
+		}]
+}

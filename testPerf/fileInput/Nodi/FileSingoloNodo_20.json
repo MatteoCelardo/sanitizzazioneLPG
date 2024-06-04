@@ -1,0 +1,271 @@
+{"NodiSensibili" : [{"IdNodo":
+	{"Etichette" : ["User", "Me"],
+	"PropStr" : {"profile_image_url" : "test", "following" : "test", "url" : "test"},
+	"PropNum" : {"profile_image_url" : 1, "following" : 1, "url" : 1}},
+	"NodoSens" : false,
+	"DaSanitizzare" : { 
+		"EtichetteSens" : ["User", "Me"],
+		"PropSempreSens" : ["profile_image_url", "following", "url"],
+		"PropSensAssoc" : {
+			"profile_image_url" : {
+				"PropAssoc" : ["following", "url"],
+				"SanitizzareProp" : false},
+			"following" : {
+				"PropAssoc" : ["url"],
+				"SanitizzareProp" : true}
+			}
+		}
+	},
+{"IdNodo":
+	{"Etichette" : ["User", "Me"],
+	"PropStr" : {"profile_image_url" : "test", "following" : "test", "url" : "test"},
+	"PropNum" : {"profile_image_url" : 1, "following" : 1, "url" : 1}},
+	"NodoSens" : false,
+	"DaSanitizzare" : { 
+		"EtichetteSens" : ["User", "Me"],
+		"PropSempreSens" : ["profile_image_url", "following", "url"],
+		"PropSensAssoc" : {
+			"profile_image_url" : {
+				"PropAssoc" : ["following", "url"],
+				"SanitizzareProp" : false},
+			"following" : {
+				"PropAssoc" : ["url"],
+				"SanitizzareProp" : true}
+			}
+		}
+	},
+{"IdNodo":
+	{"Etichette" : ["User", "Me"],
+	"PropStr" : {"profile_image_url" : "test", "following" : "test", "url" : "test"},
+	"PropNum" : {"profile_image_url" : 1, "following" : 1, "url" : 1}},
+	"NodoSens" : false,
+	"DaSanitizzare" : { 
+		"EtichetteSens" : ["User", "Me"],
+		"PropSempreSens" : ["profile_image_url", "following", "url"],
+		"PropSensAssoc" : {
+			"profile_image_url" : {
+				"PropAssoc" : ["following", "url"],
+				"SanitizzareProp" : false},
+			"following" : {
+				"PropAssoc" : ["url"],
+				"SanitizzareProp" : true}
+			}
+		}
+	},
+{"IdNodo":
+	{"Etichette" : ["User", "Me"],
+	"PropStr" : {"profile_image_url" : "test", "following" : "test", "url" : "test"},
+	"PropNum" : {"profile_image_url" : 1, "following" : 1, "url" : 1}},
+	"NodoSens" : false,
+	"DaSanitizzare" : { 
+		"EtichetteSens" : ["User", "Me"],
+		"PropSempreSens" : ["profile_image_url", "following", "url"],
+		"PropSensAssoc" : {
+			"profile_image_url" : {
+				"PropAssoc" : ["following", "url"],
+				"SanitizzareProp" : false},
+			"following" : {
+				"PropAssoc" : ["url"],
+				"SanitizzareProp" : true}
+			}
+		}
+	},
+{"IdNodo":
+	{"Etichette" : ["User", "Me"],
+	"PropStr" : {"profile_image_url" : "test", "following" : "test", "url" : "test"},
+	"PropNum" : {"profile_image_url" : 1, "following" : 1, "url" : 1}},
+	"NodoSens" : false,
+	"DaSanitizzare" : { 
+		"EtichetteSens" : ["User", "Me"],
+		"PropSempreSens" : ["profile_image_url", "following", "url"],
+		"PropSensAssoc" : {
+			"profile_image_url" : {
+				"PropAssoc" : ["following", "url"],
+				"SanitizzareProp" : false},
+			"following" : {
+				"PropAssoc" : ["url"],
+				"SanitizzareProp" : true}
+			}
+		}
+	},
+{"IdNodo":
+	{"Etichette" : ["User", "Me"],
+	"PropStr" : {"profile_image_url" : "test", "following" : "test", "url" : "test"},
+	"PropNum" : {"profile_image_url" : 1, "following" : 1, "url" : 1}},
+	"NodoSens" : false,
+	"DaSanitizzare" : { 
+		"EtichetteSens" : ["User", "Me"],
+		"PropSempreSens" : ["profile_image_url", "following", "url"],
+		"PropSensAssoc" : {
+			"profile_image_url" : {
+				"PropAssoc" : ["following", "url"],
+				"SanitizzareProp" : false},
+			"following" : {
+				"PropAssoc" : ["url"],
+				"SanitizzareProp" : true}
+			}
+		}
+	},
+{"IdNodo":
+	{"Etichette" : ["User", "Me"],
+	"PropStr" : {"profile_image_url" : "test", "following" : "test", "url" : "test"},
+	"PropNum" : {"profile_image_url" : 1, "following" : 1, "url" : 1}},
+	"NodoSens" : false,
+	"DaSanitizzare" : { 
+		"EtichetteSens" : ["User", "Me"],
+		"PropSempreSens" : ["profile_image_url", "following", "url"],
+		"PropSensAssoc" : {
+			"profile_image_url" : {
+				"PropAssoc" : ["following", "url"],
+				"SanitizzareProp" : false},
+			"following" : {
+				"PropAssoc" : ["url"],
+				"SanitizzareProp" : true}
+			}
+		}
+	},
+{"IdNodo":
+	{"Etichette" : ["User", "Me"],
+	"PropStr" : {"profile_image_url" : "test", "following" : "test", "url" : "test"},
+	"PropNum" : {"profile_image_url" : 1, "following" : 1, "url" : 1}},
+	"NodoSens" : false,
+	"DaSanitizzare" : { 
+		"EtichetteSens" : ["User", "Me"],
+		"PropSempreSens" : ["profile_image_url", "following", "url"],
+		"PropSensAssoc" : {
+			"profile_image_url" : {
+				"PropAssoc" : ["following", "url"],
+				"SanitizzareProp" : false},
+			"following" : {
+				"PropAssoc" : ["url"],
+				"SanitizzareProp" : true}
+			}
+		}
+	},
+{"IdNodo":
+	{"Etichette" : ["User", "Me"],
+	"PropStr" : {"profile_image_url" : "test", "following" : "test", "url" : "test"},
+	"PropNum" : {"profile_image_url" : 1, "following" : 1, "url" : 1}},
+	"NodoSens" : false,
+	"DaSanitizzare" : { 
+		"EtichetteSens" : ["User", "Me"],
+		"PropSempreSens" : ["profile_image_url", "following", "url"],
+		"PropSensAssoc" : {
+			"profile_image_url" : {
+				"PropAssoc" : ["following", "url"],
+				"SanitizzareProp" : false},
+			"following" : {
+				"PropAssoc" : ["url"],
+				"SanitizzareProp" : true}
+			}
+		}
+	},
+{"IdNodo":
+	{"Etichette" : ["User", "Me"],
+	"PropStr" : {"profile_image_url" : "test", "following" : "test", "url" : "test"},
+	"PropNum" : {"profile_image_url" : 1, "following" : 1, "url" : 1}},
+	"NodoSens" : false,
+	"DaSanitizzare" : { 
+		"EtichetteSens" : ["User", "Me"],
+		"PropSempreSens" : ["profile_image_url", "following", "url"],
+		"PropSensAssoc" : {
+			"profile_image_url" : {
+				"PropAssoc" : ["following", "url"],
+				"SanitizzareProp" : false},
+			"following" : {
+				"PropAssoc" : ["url"],
+				"SanitizzareProp" : true}
+			}
+		}
+	},
+{"IdNodo":
+	{"Etichette" : ["User", "Me"],
+	"PropStr" : {"profile_image_url" : "test", "following" : "test", "url" : "test"},
+	"PropNum" : {"profile_image_url" : 1, "following" : 1, "url" : 1}},
+	"NodoSens" : false,
+	"DaSanitizzare" : { 
+		"EtichetteSens" : ["User", "Me"],
+		"PropSempreSens" : ["profile_image_url", "following", "url"],
+		"PropSensAssoc" : {
+			"profile_image_url" : {
+				"PropAssoc" : ["following", "url"],
+				"SanitizzareProp" : false},
+			"following" : {
+				"PropAssoc" : ["url"],
+				"SanitizzareProp" : true}
+			}
+		}
+	},
+{"IdNodo":
+	{"Etichette" : ["User", "Me"],
+	"PropStr" : {"profile_image_url" : "test", "following" : "test", "url" : "test"},
+	"PropNum" : {"profile_image_url" : 1, "following" : 1, "url" : 1}},
+	"NodoSens" : false,
+	"DaSanitizzare" : { 
+		"EtichetteSens" : ["User", "Me"],
+		"PropSempreSens" : ["profile_image_url", "following", "url"],
+		"PropSensAssoc" : {
+			"profile_image_url" : {
+				"PropAssoc" : ["following", "url"],
+				"SanitizzareProp" : false},
+			"following" : {
+				"PropAssoc" : ["url"],
+				"SanitizzareProp" : true}
+			}
+		}
+	},
+{"IdNodo":
+	{"Etichette" : ["User", "Me"],
+	"PropStr" : {"profile_image_url" : "test", "following" : "test", "url" : "test"},
+	"PropNum" : {"profile_image_url" : 1, "following" : 1, "url" : 1}},
+	"NodoSens" : false,
+	"DaSanitizzare" : { 
+		"EtichetteSens" : ["User", "Me"],
+		"PropSempreSens" : ["profile_image_url", "following", "url"],
+		"PropSensAssoc" : {
+			"profile_image_url" : {
+				"PropAssoc" : ["following", "url"],
+				"SanitizzareProp" : false},
+			"following" : {
+				"PropAssoc" : ["url"],
+				"SanitizzareProp" : true}
+			}
+		}
+	},
+{"IdNodo":
+	{"Etichette" : ["User", "Me"],
+	"PropStr" : {"profile_image_url" : "test", "following" : "test", "url" : "test"},
+	"PropNum" : {"profile_image_url" : 1, "following" : 1, "url" : 1}},
+	"NodoSens" : false,
+	"DaSanitizzare" : { 
+		"EtichetteSens" : ["User", "Me"],
+		"PropSempreSens" : ["profile_image_url", "following", "url"],
+		"PropSensAssoc" : {
+			"profile_image_url" : {
+				"PropAssoc" : ["following", "url"],
+				"SanitizzareProp" : false},
+			"following" : {
+				"PropAssoc" : ["url"],
+				"SanitizzareProp" : true}
+			}
+		}
+	},
+{"IdNodo":
+	{"Etichette" : ["User", "Me"],
+	"PropStr" : {"profile_image_url" : "test", "following" : "test", "url" : "test"},
+	"PropNum" : {"profile_image_url" : 1, "following" : 1, "url" : 1}},
+	"NodoSens" : false,
+	"DaSanitizzare" : { 
+		"EtichetteSens" : ["User", "Me"],
+		"PropSempreSens" : ["profile_image_url", "following", "url"],
+		"PropSensAssoc" : {
+			"profile_image_url" : {
+				"PropAssoc" : ["following", "url"],
+				"SanitizzareProp" : false},
+			"following" : {
+				"PropAssoc" : ["url"],
+				"SanitizzareProp" : true}
+			}
+		}
+	}]
+}
