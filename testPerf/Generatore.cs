@@ -111,21 +111,22 @@ public class Generatore
     {
         string nodo; 
         // generazione dei file con numero di etichette variabile
-        for(int i = 1; i <= _eticNodi.Count; i++)
+        for(int i = 20; i <= 100; i+=20)
         {
             nodo = "{\"NodiSensibili\" : [";
-            nodo += this.GeneraSingoloNodo((double)i/_eticNodi.Count * 100,0);
-            nodo += "]\n}";
-            File.WriteAllText("./fileInput/Nodi/FileSingoloNodo_"+Math.Round((double)i/_eticNodi.Count * 100,2)+"-0.json",nodo);
+            for(int j = 0; j < 15; j++)
+                nodo += this.GeneraSingoloNodo(i,i) + ",\n";
+            nodo = nodo.Remove(nodo.Length-2,2) +  "]\n}";
+            File.WriteAllText("./fileInput/Nodi/FileSingoloNodo_"+i+".json",nodo);
         }
 
-        for(int i = 1; i <= _propNodi.Count; i++)
+        /*for(int i = 1; i <= _propNodi.Count; i++)
         {
             nodo = "{\"NodiSensibili\" : [";
             nodo += this.GeneraSingoloNodo(0,(double)i/_propNodi.Count * 100);
             nodo += "]\n}";
             File.WriteAllText("./fileInput/Nodi/FileSingoloNodo_0-"+Math.Round((double)i/_propNodi.Count * 100,2)+".json",nodo);
-        }
+        }*/
 
     }
 
@@ -138,26 +139,27 @@ public class Generatore
     {
         string rel; 
         // generazione dei file con numero di etichette variabile
-        for(int i = 1; i <= _eticRel.Count; i++)
+        for(int i = 20; i <= 100; i+=20)
         {
             rel = "{\"RelSensibili\" : [";
-            rel += this.GeneraSingolaRel((double)i/_eticRel.Count * 100,0);
-            rel += "]\n}";
-            File.WriteAllText("./fileInput/Rel/FileSingoloNodo_"+Math.Round((double)i/_eticRel.Count * 100,2)+"-0.json",rel);
+            for(int j = 0; j < 15; j++)
+                rel += this.GeneraSingolaRel(i) + ",\n";
+            rel = rel.Remove(rel.Length-2,2) +  "]\n}";
+            File.WriteAllText("./fileInput/Rel/FileSingolaRel_"+i+".json",rel);
         }
-
+        /*
         for(int i = 1; i <= _propRel.Count; i++)
         {
             rel = "{\"RelSensibili\" : [";
             rel += this.GeneraSingolaRel(0,(double)i/_propRel.Count * 100);
             rel += "]\n}";
             File.WriteAllText("./fileInput/Rel/FileSingoloNodo_0-"+Math.Round((double)i/_propRel.Count * 100,2)+".json",rel);
-        }
+        }*/
     }
 
     public void GeneraFileCatene(int numCat)
     {
-        for(int j = 0; j < numCat; j++)
+        for(int j = 0; j < numCat*3; j+=3)
         {
             string file = "{\"NodiSensibili\" : ["; 
             for(int i = 1; i <= EL_PER_CAT+j-Math.Floor((double)(EL_PER_CAT+j)/2); i++)
@@ -166,19 +168,19 @@ public class Generatore
             file = file.Remove(file.Length - 2, 2) + "],\n\"RelSensibili\" : [";
 
             for(int i = 1; i <= Math.Floor((double)(EL_PER_CAT+j)/2); i++)
-                file += this.GeneraSingolaRel(100,100,"\"IdCat\" : \"idRel"+i+"\",\n")+",\n";
+                file += this.GeneraSingolaRel(100,"\"IdCat\" : \"idRel"+i+"\",\n")+",\n";
 
             file = file.Remove(file.Length - 2, 2) + "],\n\"Catene\" : [[";
             for(int i = 1; i <= Math.Floor((double)(EL_PER_CAT+j)/2); i++)
                 file += "\"idNodo"+i+"\", \"idRel"+i+"\", ";
             
             if((EL_PER_CAT+j)%2 == 1)
-                file += "\"IdNodo"+(Math.Floor((double)(EL_PER_CAT+j)/2)+1)+"\"";
+                file += "\"idNodo"+(Math.Floor((double)(EL_PER_CAT+j)/2)+1)+"\"";
             else
                 file = file.Remove(file.Length - 2,2);
 
             file += "]]\n}";
-            File.WriteAllText("./fileInput/Cat/FileCatena_"+j+".json",file);
+            File.WriteAllText("./fileInput/Cat/FileCatena_"+(j+2)+".json",file);
         }
     }
 
@@ -252,7 +254,7 @@ public class Generatore
 
         oggJSON += "\n\t\t}\n\t}";
 
-        return oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON;
+        return oggJSON;
 
     }
 
@@ -260,7 +262,6 @@ public class Generatore
     /// genera un file d'input con un singolo oggetto JSON per le relazioni. L'oggetto 
     /// non avrà necessariamente riscontro con un nodo presente nel database
     /// </summary>
-    /// <param name="percEtic">percentuale di etichette da usare rispetto a tutte quelle nel DB</param>
     /// <param name="percProp">percentuale di proprietà da usare rispetto a tutte quelle nel DB</param>
     /// <remarks>
     /// A prescindere dalla percentuale specificata, il numero minimo di etichette e 
@@ -269,16 +270,13 @@ public class Generatore
     /// <returns>
     /// ritorna una stringa che contiene l'oggetto JSON
     /// </returns>
-    private string GeneraSingolaRel(double percEtic, double percProp, string idCat = "")
+    private string GeneraSingolaRel(double percProp, string idCat = "")
     {
-        double maxEtic = _eticRel.Count * percEtic / 100 >= 1 ? Math.Round((double)_eticRel.Count * percEtic / 100,5) : 1;  
+        Random rnd = new Random();
         double maxProp = _propRel.Count * percProp / 100 >= 1 || _propRel.Count == 0 ? Math.Round((double)_propRel.Count * percProp / 100,5) : 1;  
-        string oggJSON = "{"+idCat+"\"IdRel\":\n\t{\"Etichette\" : [";
 
         #region costruzione dell'oggetto identificativo
-        for(int i = 0; i < maxEtic; i++)
-            oggJSON += "\"" + _eticRel[i] + "\", ";
-        oggJSON = oggJSON.Remove(oggJSON.Length - 2,2) +  "],";
+        string oggJSON = "{"+idCat+"\"IdRel\":\n\t{\"Etichetta\" : \"" + _eticRel[rnd.Next(_eticRel.Count)] + "\"}, ";
 
         if(maxProp > 0)
         {
@@ -319,9 +317,9 @@ public class Generatore
             oggJSON += "\n\t\"RelSens\" : true";
         #endregion
 
-        oggJSON += "\n\t\t}\n\t}";
+        oggJSON += "\n\t\t}";
 
-        return oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON+",\n"+oggJSON;
+        return oggJSON;
 
     }
 }
