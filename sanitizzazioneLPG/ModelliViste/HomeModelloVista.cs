@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -63,7 +64,7 @@ public partial class HomeModelloVista : ModelloVistaBase
 
         // i dati della view vengono aggiornati solo se l'importazione va a buon fine  
         // e si è selezionato un file json
-        if (files.Count >= 1 && _s.ImportaJSON(files[0].Path.AbsolutePath))
+        if (files.Count >= 1 && _s.ImportaJSON(files[0].Path.LocalPath))
         {
             Percorso = "File:\n" + files[0].Path.AbsolutePath;
             await using var stream = await files[0].OpenReadAsync();
