@@ -36,4 +36,17 @@ Fatto ciò, sarà possibile utilizzare l'eseguibile appena compilato per avviare
 
 ## Manuale
 
+Per informazioni sull'utilizzo del software, visionare i capitoli 3 e 4 della tesi realizzata da Celardo Matteo a conclusione di una laurea triennale in Sicurezza dei Sistemi e delle Reti presso l'Università degli Studi di Milano. per maggiori informazioni su come reperire la tesi, riferirsi al [seguente link](https://www.sba.unimi.it/Tesi/49.html).
+ 
 ## Sviluppi
+
+Come definito all'interno della tesi sopra citata, i principali punti individuati su cui effettuare sviluppo sono:
+- introduzione di nuovi metodi per la sanitizzazione oltre alla cancellazione;
+- creazione di un'ulteriorie interfaccia grafica per la creazione del file JSON tramite un'interazione più _user friendly_ attraverso, ad esempio, l'impiego di bottoni e caselle di testo; 
+- introduzione di metriche per la sanitizzazione in automatico delle catene, richiedendo solo di specificare quali nodi e relazioni ne facciano parte;
+- sviluppo di un sistema di machine learning con delle metriche per la definizione di cosa rappresenti informazioni sensibili e cosa non lo sia.
+
+Sono stati inoltre individuati alcuni punti su cui cercare efficientamento del codice esistente:
+- studio più approfondito della sintassi cypher per la creazione di query più efficienti;
+- utilizzo di batching per spedire le query da eseguire al database;
+- cambiare la libreria usata per interagire col database al fine di avere un implementazione più efficiente delle funzione che realizzano la sanitizzazione delle catene.
