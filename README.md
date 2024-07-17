@@ -4,6 +4,8 @@
 - [Descrizione](#Descrizione)
 - [Librerie e framework impiegati](#Librerie-e-framework-impiegati)
 - [Requisiti e setup](#Requisiti-e-setup)
+- [Manuale](#Manuale)
+- [Sviluppi](#Sviluppi)
 ## Descrizione
 
 Questo progetto si pone lo scopo di creare un software che, fornite informazioni su cosa sia sensibile all'interno di un LPG Neo4J, permetta di sanitizzare la base di dati andando a creare autonomamente le query da inviare al DBMS, velocizzando le operazioni richieste ad un amministratore di rete che avesse la necessità di condividere una base di dati anonimizzata.
@@ -28,4 +30,10 @@ dotnet build --os linux --self-contained false -o ./compilato
 // analogo del comando precedente per la compilazione su Windows
 dotnet build --os win --self-contained false -o ./compilato
 ```
-Per ulteriori informazioni sugli attributi di compilazione, visionare la pagina dedicata al comando [dotnet build](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-build) fatta da Microsoft. 
+Per ulteriori informazioni sugli attributi di compilazione, visionare la pagina dedicata al comando [dotnet build](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-build) fatta da Microsoft.
+
+Fatto ciò, sarà possibile utilizzare l'eseguibile appena compilato per avviare il programma. 
+
+## Manuale
+
+## Sviluppi
