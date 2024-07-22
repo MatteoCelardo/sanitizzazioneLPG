@@ -36,7 +36,7 @@ Fatto ciò, sarà possibile utilizzare l'eseguibile appena compilato per avviare
 
 ## Manuale
 
-Per informazioni sull'utilizzo del software, visionare i capitoli 3 e 4 della tesi intitolata _PROTEZIONE DI INFORMAZIONI SENSIBILI IN BASI DI DATI A GRAFO_, realizzata da Celardo Matteo a conclusione di una laurea triennale in Sicurezza dei Sistemi e delle Reti presso l'Università degli Studi di Milano. Per maggiori informazioni su come reperire la tesi, riferirsi al [seguente link](https://www.sba.unimi.it/Tesi/49.html).
+Per informazioni sull'utilizzo del software, visionare i capitoli 3 e 4 della tesi intitolata _PROTEZIONE DI INFORMAZIONI SENSIBILI IN BASI DI DATI A GRAFO_, realizzata da Celardo Matteo a conclusione di una laurea triennale in Sicurezza dei Sistemi e delle Reti presso l'Università degli Studi di Milano.
  
 ## Sviluppi
 
